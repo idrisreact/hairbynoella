@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { format, startOfMonth, endOfMonth, addMonths } from "date-fns";
@@ -11,6 +11,7 @@ import { Calendar as CalendarIcon, Loader2, Check } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useServices, useSlots, useAvailableDates, useCreateBooking } from "@/hooks/useBooking";
 
 const bookingSchema = z.object({
   serviceId: z.string().min(1, "Please select a service"),
@@ -24,32 +25,16 @@ const bookingSchema = z.object({
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
 
-interface Service {
-  id: string;
-  name: string;
-  category: string;
-  price: string;
-  duration: number;
-}
-
-interface Slot {
-    id: string;
-    startTime: string;
-}
-
 export default function BookingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preSelectedServiceId = searchParams.get("serviceId");
 
-  const [services, setServices] = useState<Service[]>([]);
-  const [slots, setSlots] = useState<Slot[]>([]);
-  const [availableDates, setAvailableDates] = useState<Set<string>>(new Set());
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [loadingServices, setLoadingServices] = useState(true);
-  const [loadingSlots, setLoadingSlots] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // React Query hooks
+  const { data: services = [], isLoading: loadingServices } = useServices();
+  const createBookingMutation = useCreateBooking();
 
   const {
     register,
@@ -67,89 +52,31 @@ export default function BookingForm() {
   const selectedDate = watch("date");
   const selectedSlotId = watch("slotId");
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const res = await fetch("/api/services");
-        if (!res.ok) throw new Error("Failed to fetch services");
-        const data = await res.json();
-        setServices(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoadingServices(false);
-      }
-    };
-    fetchServices();
-  }, []);
+  // Fetch slots for selected date
+  const { data: slots = [], isLoading: loadingSlots } = useSlots(selectedDate);
 
-  // Fetch available dates for the current month (and next month for better UX)
-  useEffect(() => {
-    const fetchAvailableDates = async () => {
-      try {
-        const start = startOfMonth(currentMonth);
-        const end = endOfMonth(addMonths(currentMonth, 1)); // Fetch 2 months of data
+  // Fetch available dates for current month (and next month)
+  const startDate = useMemo(() => format(startOfMonth(currentMonth), "yyyy-MM-dd"), [currentMonth]);
+  const endDate = useMemo(() => format(endOfMonth(addMonths(currentMonth, 1)), "yyyy-MM-dd"), [currentMonth]);
+  const { data: availableDatesData } = useAvailableDates(startDate, endDate);
+  const availableDates = useMemo(() => new Set(availableDatesData?.dates || []), [availableDatesData]);
 
-        const startStr = format(start, "yyyy-MM-dd");
-        const endStr = format(end, "yyyy-MM-dd");
-
-        const res = await fetch(`/api/availability/dates?startDate=${startStr}&endDate=${endStr}`);
-        if (res.ok) {
-          const data = await res.json();
-          setAvailableDates(new Set(data.dates));
-        }
-      } catch (error) {
-        console.error("Error fetching available dates:", error);
-      }
-    };
-    fetchAvailableDates();
-  }, [currentMonth]);
-
-  useEffect(() => {
+  // Reset slot selection when date changes
+  useMemo(() => {
     if (selectedDate) {
-        const fetchSlots = async () => {
-            setLoadingSlots(true);
-            setSlots([]);
-            setValue("slotId", ""); // Reset slot selection
-            try {
-                const dateStr = format(selectedDate, "yyyy-MM-dd");
-                const res = await fetch(`/api/availability?date=${dateStr}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setSlots(data);
-                }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoadingSlots(false);
-            }
-        };
-        fetchSlots();
+      setValue("slotId", "");
     }
   }, [selectedDate, setValue]);
 
   const onSubmit = async (data: BookingFormValues) => {
-    setIsSubmitting(true);
-    setSubmitError(null);
-    try {
-      const res = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Failed to create booking");
-      }
-
-      router.push("/book/success");
-    } catch (error: any) {
-      console.error("Submission error:", error);
-      setSubmitError(error.message || "Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    createBookingMutation.mutate(data, {
+      onSuccess: () => {
+        router.push("/book/success");
+      },
+      onError: (error: Error) => {
+        console.error("Submission error:", error);
+      },
+    });
   };
 
   // Group services by category
@@ -325,18 +252,18 @@ export default function BookingForm() {
         </div>
       </div>
 
-      {submitError && (
+      {createBookingMutation.error && (
         <div className="p-3 bg-red-50 text-red-600 rounded-md text-sm">
-            {submitError}
+            {createBookingMutation.error.message}
         </div>
       )}
 
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         className="w-full bg-gold-500 hover:bg-gold-600 text-white font-bold py-4 text-lg shadow-lg hover:shadow-xl transition-all"
-        disabled={isSubmitting}
+        disabled={createBookingMutation.isPending}
       >
-        {isSubmitting ? (
+        {createBookingMutation.isPending ? (
             <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Confirming Booking...

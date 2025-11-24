@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
+import QueryProvider from "@/components/providers/QueryProvider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -29,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${inter.variable} antialiased bg-dark-900 text-foreground`}
       >
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
