@@ -42,6 +42,13 @@ export default async function AdminLayout({
             <Scissors className="w-5 h-5" />
             Services
           </Link>
+          <Link 
+            href="/admin/availability" 
+            className="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-dark-700 text-gray-300 hover:text-white transition-colors"
+          >
+            <Calendar className="w-5 h-5" />
+            Availability
+          </Link>
         </nav>
 
         <div className="p-4 border-t border-dark-700">

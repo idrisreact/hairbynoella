@@ -60,10 +60,19 @@ export const services = pgTable('services', {
     createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const availabilitySlots = pgTable('availability_slots', {
+    id: text('id').primaryKey(),
+    startTime: timestamp('start_time').notNull(),
+    isBooked: boolean('is_booked').default(false).notNull(),
+    blockedByAdmin: boolean('blocked_by_admin').default(false).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
 export const bookings = pgTable('bookings', {
     id: text('id').primaryKey(),
     userId: text('user_id').references(() => user.id),
     serviceId: text('service_id').references(() => services.id),
+    slotId: text('slot_id').references(() => availabilitySlots.id),
     date: timestamp('date').notNull(),
     status: text('status').default('pending'),
     customerName: text('customer_name').notNull(),
