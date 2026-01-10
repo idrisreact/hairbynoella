@@ -18,7 +18,9 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
+  
+  console.log("Navbar Session Debug:", { session, isPending });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -64,7 +66,7 @@ export default function Navbar() {
           
           {session ? (
             <div className="flex items-center gap-4 ml-4 border-l border-dark-100 pl-4">
-                {session.user.role === "admin" && (
+                {(session.user as any).role === "admin" && (
                     <Link 
                         href="/admin"
                         className="text-sm font-bold text-gold-600 hover:text-gold-700"
@@ -78,8 +80,21 @@ export default function Navbar() {
                 >
                     Sign Out
                 </button>
-                <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center text-gold-600 font-bold text-xs">
-                    {session.user.name?.[0] || <User className="w-4 h-4" />}
+                <div className="flex items-center gap-2">
+                    {session.user.image ? (
+                        <img
+                            src={session.user.image}
+                            alt={session.user.name || "User"}
+                            className="w-8 h-8 rounded-full object-cover"
+                        />
+                    ) : (
+                        <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center text-gold-600 font-bold text-xs">
+                            {session.user.name?.[0]?.toUpperCase() || <User className="w-4 h-4" />}
+                        </div>
+                    )}
+                    <span className="text-sm font-medium text-dark-500 hidden lg:block">
+                        {session.user.name}
+                    </span>
                 </div>
             </div>
           ) : (
@@ -124,7 +139,7 @@ export default function Navbar() {
               <hr className="border-gray-100" />
               {session ? (
                 <>
-                    {session.user.role === "admin" && (
+                    {(session.user as any).role === "admin" && (
                         <Link 
                             href="/admin"
                             className="text-gold-600 font-bold py-2"

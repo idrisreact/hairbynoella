@@ -14,6 +14,7 @@ const bookingSchema = z.object({
     customerName: z.string(),
     customerEmail: z.string().email(),
     customerPhone: z.string(),
+    hairPhotoUrl: z.string().optional(),
     notes: z.string().optional(),
 });
 
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: result.error.flatten() }, { status: 400 });
         }
 
-        const { serviceId, date, slotId, customerName, customerEmail, customerPhone, notes } = result.data;
+        const { serviceId, date, slotId, customerName, customerEmail, customerPhone, hairPhotoUrl, notes } = result.data;
 
         // Optional: Check for authentication to link user
         let session = null;
@@ -64,6 +65,7 @@ export async function POST(req: Request) {
             customerName,
             customerEmail,
             customerPhone,
+            hairPhotoUrl,
             notes,
             status: 'pending'
         }).returning();

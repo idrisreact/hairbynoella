@@ -78,6 +78,7 @@ export const bookings = pgTable('bookings', {
     customerName: text('customer_name').notNull(),
     customerEmail: text('customer_email').notNull(),
     customerPhone: text('customer_phone'),
+    hairPhotoUrl: text('hair_photo_url'),
     notes: text('notes'),
     createdAt: timestamp('created_at').defaultNow(),
 });

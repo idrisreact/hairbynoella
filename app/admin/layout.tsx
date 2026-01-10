@@ -13,7 +13,7 @@ export default async function AdminLayout({
     headers: await headers(),
   });
 
-  if (!session || session.user.role !== "admin") {
+  if (!session || (session.user as any).role !== "admin") {
     // redirect("/"); // Uncomment this to enforce protection after you set up your admin user
     // For now, we'll allow access but show a warning or just proceed for development if role is missing
     if (!session) redirect("/");

@@ -11,15 +11,18 @@ import { Calendar as CalendarIcon, Loader2, Check } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useServices, useSlots, useAvailableDates, useCreateBooking } from "@/hooks/useBooking";
+import { useServices, useSlots, useAvailableDates, useCreateBooking, type Service } from "@/hooks/useBooking";
+import { UploadButton } from "@/lib/uploadthing";
+import "@uploadthing/react/styles.css";
 
 const bookingSchema = z.object({
   serviceId: z.string().min(1, "Please select a service"),
-  date: z.date({ required_error: "Please select a date" }),
+  date: z.date({ message: "Please select a date" }),
   slotId: z.string().min(1, "Please select a time slot"),
   customerName: z.string().min(2, "Name is required"),
   customerEmail: z.string().email("Invalid email address"),
   customerPhone: z.string().min(10, "Valid phone number is required"),
+  hairPhotoUrl: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -249,6 +252,31 @@ export default function BookingForm() {
             rows={3}
             placeholder="Any specific requests or allergies?"
             />
+        </div>
+
+        <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Current Hair Photo (Optional)</label>
+            <UploadButton
+                endpoint="hairPhoto"
+                onClientUploadComplete={(res) => {
+                    console.log("Files: ", res);
+                    if (res && res[0]) {
+                        setValue("hairPhotoUrl", res[0].url);
+                    }
+                }}
+                onUploadError={(error: Error) => {
+                    alert(`ERROR! ${error.message}`);
+                }}
+                appearance={{
+                    button: "bg-gold-500 text-white hover:bg-gold-600",
+                    allowedContent: "text-gray-500"
+                }}
+            />
+            {watch("hairPhotoUrl") && (
+                <p className="text-sm text-green-600 mt-2">
+                    Photo uploaded successfully!
+                </p>
+            )}
         </div>
       </div>
 
