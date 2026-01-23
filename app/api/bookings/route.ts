@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
+import { stripe } from "@/lib/stripe";
 
 const bookingSchema = z.object({
     serviceId: z.string(),
@@ -16,6 +17,7 @@ const bookingSchema = z.object({
     customerPhone: z.string(),
     hairPhotoUrl: z.string().optional(),
     notes: z.string().optional(),
+    stripePaymentIntentId: z.string().min(1, "Payment intent ID is required"),
 });
 
 export async function POST(req: Request) {
@@ -35,7 +37,24 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: result.error.flatten() }, { status: 400 });
         }
 
-        const { serviceId, date, slotId, customerName, customerEmail, customerPhone, hairPhotoUrl, notes } = result.data;
+        const { serviceId, date, slotId, customerName, customerEmail, customerPhone, hairPhotoUrl, notes, stripePaymentIntentId } = result.data;
+
+        // Verify the payment intent with Stripe
+        let paymentIntent;
+        try {
+            paymentIntent = await stripe.paymentIntents.retrieve(stripePaymentIntentId);
+        } catch (stripeError) {
+            console.error("Failed to retrieve payment intent:", stripeError);
+            return NextResponse.json({ error: "Invalid payment intent" }, { status: 400 });
+        }
+
+        // Ensure payment was successful
+        if (paymentIntent.status !== 'succeeded') {
+            return NextResponse.json(
+                { error: `Payment not completed. Status: ${paymentIntent.status}` },
+                { status: 400 }
+            );
+        }
 
         // Optional: Check for authentication to link user
         let session = null;
@@ -49,13 +68,18 @@ export async function POST(req: Request) {
 
         console.log("Attempting to insert booking into DB...");
 
-        // Start a transaction to ensure atomicity (if Drizzle supported transactions easily here, but we'll do sequential for now)
-        // 1. Mark slot as booked
+        // Extract payment metadata
+        const depositAmount = paymentIntent.amount;
+        const fullServicePrice = paymentIntent.metadata.fullServicePrice
+            ? parseInt(paymentIntent.metadata.fullServicePrice)
+            : depositAmount;
+
+        // Mark slot as booked (payment is already verified as succeeded)
         await db.update(availabilitySlots)
             .set({ isBooked: true })
             .where(eq(availabilitySlots.id, slotId));
 
-        // 2. Create booking
+        // Create booking with payment information
         const newBooking = await db.insert(bookings).values({
             id: uuidv4(),
             userId: session?.user?.id,
@@ -67,7 +91,14 @@ export async function POST(req: Request) {
             customerPhone,
             hairPhotoUrl,
             notes,
-            status: 'pending'
+            status: 'pending',
+            stripePaymentIntentId,
+            paymentStatus: 'succeeded',
+            depositAmount,
+            fullServicePrice,
+            amountPaid: depositAmount,
+            currency: 'gbp',
+            paymentDate: new Date(),
         }).returning();
 
         console.log("Booking created successfully:", newBooking[0]);

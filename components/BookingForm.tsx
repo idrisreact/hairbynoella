@@ -14,6 +14,9 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useServices, useSlots, useAvailableDates, useCreateBooking, type Service } from "@/hooks/useBooking";
 import { UploadButton } from "@/lib/uploadthing";
 import "@uploadthing/react/styles.css";
+import { Elements } from '@stripe/react-stripe-js';
+import { getStripe } from '@/lib/stripe-client';
+import { PaymentForm } from './PaymentForm';
 
 const bookingSchema = z.object({
   serviceId: z.string().min(1, "Please select a service"),
@@ -28,12 +31,20 @@ const bookingSchema = z.object({
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
 
+type BookingStep = 'details' | 'payment' | 'processing';
+
 export default function BookingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preSelectedServiceId = searchParams.get("serviceId");
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [step, setStep] = useState<BookingStep>('details');
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+  const [depositAmount, setDepositAmount] = useState<number>(0);
+  const [fullServicePrice, setFullServicePrice] = useState<number>(0);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   // React Query hooks
   const { data: services = [], isLoading: loadingServices } = useServices();
@@ -72,14 +83,63 @@ export default function BookingForm() {
   }, [selectedDate, setValue]);
 
   const onSubmit = async (data: BookingFormValues) => {
-    createBookingMutation.mutate(data, {
-      onSuccess: () => {
-        router.push("/book/success");
-      },
-      onError: (error: Error) => {
-        console.error("Submission error:", error);
-      },
-    });
+    // Step 1: Create payment intent
+    try {
+      const response = await fetch('/api/payments/create-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceId: data.serviceId,
+          customerEmail: data.customerEmail,
+          customerName: data.customerName,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create payment intent');
+      }
+
+      const paymentData = await response.json();
+
+      setClientSecret(paymentData.clientSecret);
+      setPaymentIntentId(paymentData.paymentIntentId);
+      setDepositAmount(paymentData.depositAmount);
+      setFullServicePrice(paymentData.fullServicePrice);
+      setStep('payment');
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      setPaymentError(error instanceof Error ? error.message : 'Failed to initialize payment');
+    }
+  };
+
+  const handlePaymentSuccess = async (completedPaymentIntentId: string) => {
+    setStep('processing');
+
+    // Get form values
+    const formData = watch();
+
+    // Create booking with payment intent ID
+    createBookingMutation.mutate(
+      {
+        ...formData,
+        stripePaymentIntentId: completedPaymentIntentId,
+      } as any,
+      {
+        onSuccess: () => {
+          router.push('/book/success');
+        },
+        onError: (error: Error) => {
+          console.error('Booking creation error:', error);
+          setPaymentError(error.message);
+          setStep('payment');
+        },
+      }
+    );
+  };
+
+  const handlePaymentError = (error: string) => {
+    setPaymentError(error);
   };
 
   // Group services by category
@@ -90,6 +150,60 @@ export default function BookingForm() {
     acc[service.category].push(service);
     return acc;
   }, {} as Record<string, Service[]>);
+
+  // Show payment form when in payment step
+  if (step === 'payment' && clientSecret) {
+    const stripePromise = getStripe();
+
+    return (
+      <div className="space-y-8 bg-white p-8 rounded-lg shadow-xl border border-gold-100">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setStep('details')}
+              className="text-sm text-gray-600 hover:text-gray-800 underline"
+            >
+              ← Back to details
+            </button>
+          </div>
+
+          <h2 className="font-serif text-2xl text-gray-800">Payment</h2>
+          <p className="text-sm text-gray-600">
+            Complete your deposit payment to confirm your booking
+          </p>
+        </div>
+
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
+          <PaymentForm
+            depositAmount={depositAmount}
+            fullServicePrice={fullServicePrice}
+            onSuccess={handlePaymentSuccess}
+            onError={handlePaymentError}
+            customerName={watch('customerName')}
+          />
+        </Elements>
+
+        {paymentError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600">{paymentError}</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Show processing state
+  if (step === 'processing') {
+    return (
+      <div className="space-y-8 bg-white p-8 rounded-lg shadow-xl border border-gold-100">
+        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-gold-500" />
+          <h3 className="font-serif text-xl text-gray-800">Creating your booking...</h3>
+          <p className="text-sm text-gray-600">Please wait while we confirm your appointment</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white p-8 rounded-lg shadow-xl border border-gold-100">
@@ -294,10 +408,10 @@ export default function BookingForm() {
         {createBookingMutation.isPending ? (
             <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Confirming Booking...
+                Processing...
             </>
         ) : (
-            "Confirm Booking"
+            "Proceed to Payment"
         )}
       </Button>
     </form>

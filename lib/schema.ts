@@ -80,5 +80,24 @@ export const bookings = pgTable('bookings', {
     customerPhone: text('customer_phone'),
     hairPhotoUrl: text('hair_photo_url'),
     notes: text('notes'),
+    // Payment fields
+    stripePaymentIntentId: text('stripe_payment_intent_id'),
+    paymentStatus: text('payment_status').default('pending'), // 'pending', 'succeeded', 'failed', 'refunded'
+    depositAmount: integer('deposit_amount'), // In pence (e.g., 2000 = £20.00)
+    fullServicePrice: integer('full_service_price'), // In pence
+    amountPaid: integer('amount_paid').default(0), // In pence
+    amountRefunded: integer('amount_refunded').default(0), // In pence
+    currency: text('currency').default('gbp'),
+    refundReason: text('refund_reason'),
+    paymentDate: timestamp('payment_date'),
+    refundDate: timestamp('refund_date'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Webhook events table for idempotency
+export const webhookEvents = pgTable('webhook_events', {
+    id: text('id').primaryKey(), // Stripe event ID
+    type: text('type').notNull(),
+    processed: boolean('processed').default(true),
     createdAt: timestamp('created_at').defaultNow(),
 });

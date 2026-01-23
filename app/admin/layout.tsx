@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Calendar, Scissors, LogOut } from "lucide-react";
+import { LayoutDashboard, Calendar, Scissors, LogOut, DollarSign } from "lucide-react";
 
 export default async function AdminLayout({
   children,
@@ -28,22 +28,29 @@ export default async function AdminLayout({
         </div>
         
         <nav className="flex-1 p-4 space-y-2">
-          <Link 
-            href="/admin/bookings" 
+          <Link
+            href="/admin/bookings"
             className="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-dark-700 text-gray-300 hover:text-white transition-colors"
           >
             <Calendar className="w-5 h-5" />
             Bookings
           </Link>
-          <Link 
-            href="/admin/services" 
+          <Link
+            href="/admin/revenue"
+            className="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-dark-700 text-gray-300 hover:text-white transition-colors"
+          >
+            <DollarSign className="w-5 h-5" />
+            Revenue
+          </Link>
+          <Link
+            href="/admin/services"
             className="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-dark-700 text-gray-300 hover:text-white transition-colors"
           >
             <Scissors className="w-5 h-5" />
             Services
           </Link>
-          <Link 
-            href="/admin/availability" 
+          <Link
+            href="/admin/availability"
             className="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-dark-700 text-gray-300 hover:text-white transition-colors"
           >
             <Calendar className="w-5 h-5" />
