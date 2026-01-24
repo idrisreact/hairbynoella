@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Menu, X, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,8 +19,11 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
-  
-  console.log("Navbar Session Debug:", { session, isPending });
+
+  // Memoize session to prevent unnecessary re-renders during navigation
+  const stableSession = useMemo(() => session, [session?.user?.id]);
+
+  console.log("Navbar Session Debug:", { session: stableSession, isPending });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -64,9 +67,9 @@ export default function Navbar() {
             </Link>
           ))}
           
-          {session ? (
+          {stableSession ? (
             <div className="flex items-center gap-4 ml-4 border-l border-dark-100 pl-4">
-                {(session.user as any).role === "admin" && (
+                {(stableSession.user as any).role === "admin" && (
                     <Link 
                         href="/admin"
                         className="text-sm font-bold text-gold-600 hover:text-gold-700"
@@ -81,19 +84,19 @@ export default function Navbar() {
                     Sign Out
                 </button>
                 <div className="flex items-center gap-2">
-                    {session.user.image ? (
+                    {stableSession.user.image ? (
                         <img
-                            src={session.user.image}
-                            alt={session.user.name || "User"}
+                            src={stableSession.user.image}
+                            alt={stableSession.user.name || "User"}
                             className="w-8 h-8 rounded-full object-cover"
                         />
                     ) : (
                         <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center text-gold-600 font-bold text-xs">
-                            {session.user.name?.[0]?.toUpperCase() || <User className="w-4 h-4" />}
+                            {stableSession.user.name?.[0]?.toUpperCase() || <User className="w-4 h-4" />}
                         </div>
                     )}
                     <span className="text-sm font-medium text-dark-500 hidden lg:block">
-                        {session.user.name}
+                        {stableSession.user.name}
                     </span>
                 </div>
             </div>
@@ -137,9 +140,9 @@ export default function Navbar() {
                 </Link>
               ))}
               <hr className="border-gray-100" />
-              {session ? (
+              {stableSession ? (
                 <>
-                    {(session.user as any).role === "admin" && (
+                    {(stableSession.user as any).role === "admin" && (
                         <Link 
                             href="/admin"
                             className="text-gold-600 font-bold py-2"

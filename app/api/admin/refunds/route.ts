@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     // Process refund with Stripe
     const refund = await stripe.refunds.create({
       payment_intent: paymentIntentId,
-      reason: reason ? 'requested_by_customer' : undefined,
+      reason: 'requested_by_customer',
       metadata: {
         bookingId,
         refundedBy: session.user.email || session.user.name,

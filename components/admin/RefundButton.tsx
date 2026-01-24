@@ -61,60 +61,88 @@ export default function RefundButton({
 
   if (isOpen) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg p-6 max-w-md w-full">
-          <h3 className="text-lg font-semibold mb-4">Process Refund</h3>
-
-          <div className="space-y-4">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-sm text-yellow-800">
-                <strong>Warning:</strong> This will refund {formatPrice(amountPaid)} to the customer
-                and cancel the booking.
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full border border-gray-200">
+          {/* Header */}
+          <div className="flex items-start gap-4 mb-6">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+              <RotateCcw className="w-6 h-6 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-1">
+                Process Refund
+              </h3>
+              <p className="text-sm text-gray-500">
+                Refund payment and cancel the booking
               </p>
             </div>
+          </div>
 
+          <div className="space-y-5">
+            {/* Warning Banner */}
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 overflow-hidden">
+              <div className="flex gap-3 items-start">
+                <div className="flex-shrink-0 mt-0.5">
+                  <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">!</span>
+                  </div>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">
+                    This action cannot be undone
+                  </p>
+                  <p className="text-sm text-gray-700 break-words">
+                    {formatPrice(amountPaid)} will be refunded to the customer and the booking will be cancelled.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Reason Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Reason for refund (optional)
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Refund Reason <span className="text-gray-400 font-normal">(optional)</span>
               </label>
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                className="w-full border-2 border-gray-200 rounded-xl p-3 text-sm bg-white text-gray-900 placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-100 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed resize-none"
                 rows={3}
-                placeholder="e.g., Customer requested cancellation"
+                placeholder="e.g., Customer requested cancellation, Service unavailable..."
                 disabled={isProcessing}
               />
             </div>
 
+            {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p className="text-sm font-medium text-red-700">{error}</p>
               </div>
             )}
 
-            <div className="flex gap-2 justify-end">
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setIsOpen(false)}
                 disabled={isProcessing}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                className="flex-1 px-5 py-3 text-sm font-semibold border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRefund}
                 disabled={isProcessing}
-                className="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                className="flex-1 px-5 py-3 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-lg shadow-purple-500/25 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Processing...
+                    <span>Processing...</span>
                   </>
                 ) : (
                   <>
                     <RotateCcw className="w-4 h-4" />
-                    Refund {formatPrice(amountPaid)}
+                    <span>Refund {formatPrice(amountPaid)}</span>
                   </>
                 )}
               </button>
@@ -128,10 +156,10 @@ export default function RefundButton({
   return (
     <button
       onClick={() => setIsOpen(true)}
-      className="text-purple-600 hover:text-purple-900 p-1"
+      className="group relative text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all active:scale-95"
       title="Process Refund"
     >
-      <RotateCcw className="w-5 h-5" />
+      <RotateCcw className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
     </button>
   );
 }
