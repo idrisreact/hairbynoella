@@ -17,11 +17,13 @@ export async function GET() {
 
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 
 const serviceSchema = z.object({
     name: z.string(),
     category: z.string(),
     price: z.string(),
+    duration: z.number().nullable().optional(),
     description: z.string().optional(),
 });
 
@@ -48,5 +50,42 @@ export async function POST(req: Request) {
     } catch (error) {
         console.error("Error creating service:", error);
         return NextResponse.json({ error: "Failed to create service" }, { status: 500 });
+    }
+}
+
+const updateSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    category: z.string(),
+    price: z.string(),
+    duration: z.number().nullable().optional(),
+    description: z.string().optional(),
+});
+
+export async function PUT(req: Request) {
+    try {
+        const body = await req.json();
+        const result = updateSchema.safeParse(body);
+
+        if (!result.success) {
+            return NextResponse.json({ error: result.error.flatten() }, { status: 400 });
+        }
+
+        const { id, name, category, price, duration, description } = result.data;
+
+        const updated = await db
+            .update(services)
+            .set({ name, category, price, duration: duration ?? null, description: description ?? null })
+            .where(eq(services.id, id))
+            .returning();
+
+        if (updated.length === 0) {
+            return NextResponse.json({ error: "Service not found" }, { status: 404 });
+        }
+
+        return NextResponse.json(updated[0]);
+    } catch (error) {
+        console.error("Error updating service:", error);
+        return NextResponse.json({ error: "Failed to update service" }, { status: 500 });
     }
 }
