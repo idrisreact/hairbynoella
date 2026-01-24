@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Trash2, Pencil } from "lucide-react";
+import Link from "next/link";
 
 interface Service {
   id: string;
@@ -97,6 +98,14 @@ export default function ServicesTable({ services, categories, deleteAction }: Se
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-1.5">
+                      <Link
+                        href={`/admin/services/${service.id}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-gold-600 hover:bg-gold-50 rounded-md transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        Edit
+                      </Link>
                       <form action={() => deleteAction(service.id)}>
                         <button
                           className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"

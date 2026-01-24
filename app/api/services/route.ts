@@ -36,7 +36,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: result.error.flatten() }, { status: 400 });
         }
 
-        const { name, category, price, description } = result.data;
+        const { name, category, price, description, duration } = result.data;
 
         const newService = await db.insert(services).values({
             id: uuidv4(),
@@ -44,6 +44,7 @@ export async function POST(req: Request) {
             category,
             price,
             description,
+            duration: duration || null,
         }).returning();
 
         return NextResponse.json(newService[0], { status: 201 });
