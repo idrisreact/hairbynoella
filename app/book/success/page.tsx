@@ -5,11 +5,11 @@ import { CheckCircle, CreditCard, Mail, Calendar } from "lucide-react";
 
 export default function BookingSuccessPage() {
   return (
-    <main className="min-h-screen bg-dark-50">
+    <main className="min-h-screen bg-gray-50">
       <Navbar />
 
       <section className="pt-40 pb-20 px-4">
-        <div className="container mx-auto max-w-2xl">
+        <div className="mx-auto max-w-2xl">
             <div className="bg-white p-12 rounded-lg shadow-xl border border-gold-400/20">
                 {/* Success Icon */}
                 <div className="flex justify-center mb-6">
@@ -78,7 +78,7 @@ export default function BookingSuccessPage() {
 
                 {/* Important Note */}
                 <div className="bg-gold-50 border border-gold-200 rounded-lg p-4 mb-8">
-                    <p className="text-sm text-dark-600">
+                    <p className="text-sm text-gray-700">
                         <strong>Important:</strong> If you need to reschedule or cancel your appointment,
                         please contact us at least 24 hours in advance.
                     </p>
@@ -94,7 +94,7 @@ export default function BookingSuccessPage() {
                     </Link>
                     <Link
                         href="/services"
-                        className="px-8 py-3 border border-dark-200 text-dark-600 font-medium rounded-md hover:bg-dark-50 transition-colors text-center"
+                        className="px-8 py-3 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors text-center"
                     >
                         View Services
                     </Link>

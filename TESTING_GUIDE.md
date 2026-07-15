@@ -72,7 +72,7 @@ npm run dev
 
 Check that payment data is stored correctly:
 ```bash
-docker exec hairbynoella-db psql -U postgres -d hairbynoella -c "SELECT customer_name, payment_status, deposit_amount, amount_paid FROM bookings ORDER BY created_at DESC LIMIT 5;"
+psql "$DATABASE_URL" -c "SELECT customer_name, payment_status, deposit_amount, amount_paid FROM bookings ORDER BY created_at DESC LIMIT 5;"
 ```
 
 Should show:

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 import { z } from 'zod';
+import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { db } from '@/lib/db';
 import { bookings, availabilitySlots } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
-import { auth } from '@/lib/auth';
+import { requireAdminApi } from '@/lib/admin-auth';
 
 const refundSchema = z.object({
   bookingId: z.string().min(1, 'Booking ID is required'),
@@ -14,30 +14,15 @@ const refundSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const admin = await requireAdminApi();
+  if (!admin.ok) return admin.response;
+  const { session } = admin;
+
   try {
-    // Check admin authentication
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    console.log('Refund API - Session:', session?.user);
-
-    if (!session || (session.user as any).role !== 'admin') {
-      console.error('Refund API - Unauthorized access attempt');
-      return NextResponse.json(
-        { error: 'Unauthorized. Admin access required.' },
-        { status: 403 }
-      );
-    }
-
     // Parse and validate request body
     const body = await request.json();
-    console.log('Refund API - Request body:', body);
-
     const validatedData = refundSchema.parse(body);
     const { bookingId, paymentIntentId, reason } = validatedData;
-
-    console.log('Refund API - Processing refund for booking:', bookingId);
 
     // Fetch booking from database
     const booking = await db
@@ -65,14 +50,11 @@ export async function POST(request: NextRequest) {
 
     // Check if already refunded
     if (bookingData.paymentStatus === 'refunded') {
-      console.log('Refund API - Booking already refunded');
       return NextResponse.json(
         { error: 'Booking already refunded' },
         { status: 400 }
       );
     }
-
-    console.log('Refund API - Creating Stripe refund for payment intent:', paymentIntentId);
 
     // Process refund with Stripe
     const refund = await stripe.refunds.create({
@@ -115,21 +97,19 @@ export async function POST(request: NextRequest) {
       message: 'Refund processed successfully and slot released',
     });
   } catch (error) {
-    console.error('Error processing refund:', error);
-
     // Handle Zod validation errors
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }
 
     // Handle Stripe errors
-    if ((error as any).type === 'StripeError') {
-      console.error('Refund API - Stripe error:', (error as Error).message);
+    if (error instanceof Stripe.errors.StripeError) {
+      console.error('Refund API - Stripe error:', error.type, error.code);
       return NextResponse.json(
-        { error: 'Stripe refund failed', message: (error as Error).message },
+        { error: 'Stripe refund failed' },
         { status: 400 }
       );
     }
@@ -137,7 +117,7 @@ export async function POST(request: NextRequest) {
     // Generic error
     console.error('Refund API - Unexpected error:', error);
     return NextResponse.json(
-      { error: 'Failed to process refund', details: (error as Error).message },
+      { error: 'Failed to process refund' },
       { status: 500 }
     );
   }

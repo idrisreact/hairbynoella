@@ -112,7 +112,7 @@ export default async function AdminRevenuePage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Revenue</h2>
+        <h1 className="text-2xl font-bold text-gray-900">Revenue</h1>
         <p className="text-gray-500 mt-1">Track your earnings and transactions</p>
       </div>
 
@@ -134,7 +134,7 @@ export default async function AdminRevenuePage() {
                   <Icon className={`w-5 h-5 ${stat.color}`} />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-2">{stat.subtitle}</p>
+              <p className="text-xs text-gray-600 mt-2">{stat.subtitle}</p>
             </div>
           );
         })}
@@ -150,19 +150,19 @@ export default async function AdminRevenuePage() {
           <table className="min-w-full">
             <thead className="bg-gray-50/80 sticky top-0 z-[1]">
               <tr className="border-b border-gray-100">
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Service
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Amount
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Date
                 </th>
               </tr>

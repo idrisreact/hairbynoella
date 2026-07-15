@@ -112,7 +112,7 @@ export default function ServicesPage() {
                   viewport={{ once: true }}
                   transition={{ delay: categoryIndex * 0.1, duration: 0.5 }}
                 >
-                  <div className="flex items-center gap-4 mb-8 border-b border-dark-100 pb-4">
+                  <div className="flex items-center gap-4 mb-8 border-b border-gray-200 pb-4">
                     <div className="p-3 bg-gold-400/10 rounded-full text-gold-600">
                       {category.icon}
                     </div>
@@ -125,7 +125,7 @@ export default function ServicesPage() {
                     {category.services.map((service, serviceIndex) => (
                       <div 
                         key={serviceIndex}
-                        className="flex items-baseline justify-between group border-b border-dashed border-dark-100 pb-2 hover:border-gold-400 transition-colors"
+                        className="flex items-baseline justify-between group border-b border-dashed border-gray-200 pb-2 hover:border-gold-400 transition-colors"
                       >
                         <h3 className="text-lg font-medium text-dark-500 group-hover:text-dark-400 transition-colors">
                           {service.name}
@@ -136,7 +136,7 @@ export default function ServicesPage() {
                             </span>
                             <Link 
                                 href={`/book?serviceId=${service.id}`}
-                                className="text-xs uppercase tracking-wider font-bold text-dark-300 hover:text-gold-600 border border-dark-100 hover:border-gold-400 px-3 py-1 rounded-full transition-all"
+                                className="text-xs uppercase tracking-wider font-bold text-gray-500 hover:text-gold-600 border border-gray-200 hover:border-gold-400 px-3 py-1 rounded-full transition-all"
                             >
                                 Book
                             </Link>
@@ -162,7 +162,7 @@ export default function ServicesPage() {
           </p>
           <Link 
             href="/book" 
-            className="inline-block px-10 py-4 bg-white text-gold-600 font-bold text-base uppercase tracking-widest rounded-sm hover:bg-dark-100 transition-all shadow-xl hover:-translate-y-1"
+            className="inline-block px-10 py-4 bg-white text-gold-600 font-bold text-base uppercase tracking-widest rounded-sm hover:bg-gray-100 transition-all shadow-xl hover:-translate-y-1"
           >
             Book Now
           </Link>

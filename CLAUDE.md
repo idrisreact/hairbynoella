@@ -10,10 +10,10 @@ Hair by Noella is a Next.js 15 booking application for a hair salon business. It
 
 ### Starting Development
 ```bash
-npm run dev          # Starts Docker Compose (PostgreSQL) and Next.js dev server with Turbopack
-npm run db:up        # Start PostgreSQL container only
-npm run db:down      # Stop PostgreSQL container
+npm run dev          # Starts the Next.js dev server with Turbopack
 ```
+The database is hosted on Neon (serverless Postgres); point `DATABASE_URL` in `.env` at your Neon
+connection string. There is no local database container to start.
 
 ### Database Management
 ```bash
@@ -32,7 +32,7 @@ npm start            # Start production server
 
 ### Tech Stack
 - **Framework**: Next.js 15 (App Router with Turbopack)
-- **Database**: PostgreSQL (Docker container on port 5433)
+- **Database**: PostgreSQL hosted on Neon (serverless)
 - **ORM**: Drizzle ORM
 - **Authentication**: Better Auth with email/password
 - **Forms**: React Hook Form + Zod validation
@@ -68,7 +68,7 @@ The application has two main domain areas:
 
 **Database Connection**:
 - Connection pooling via `pg` Pool in `lib/db.ts`
-- `DATABASE_URL` environment variable required (default: PostgreSQL on port 5433)
+- `DATABASE_URL` environment variable required (Neon serverless Postgres connection string)
 - Drizzle client exported as `db` with schema imported
 
 **API Routes Pattern**:
@@ -92,7 +92,7 @@ The application has two main domain areas:
 
 Required in `.env`:
 ```
-DATABASE_URL=postgresql://postgres:password@localhost:5433/hairbynoella
+DATABASE_URL=postgresql://<user>:<password>@<endpoint>.<region>.aws.neon.tech/<db>?sslmode=require
 BETTER_AUTH_SECRET=<generate-random-secret>
 BETTER_AUTH_URL=http://localhost:3000
 ```
@@ -109,9 +109,10 @@ BETTER_AUTH_URL=http://localhost:3000
 - Slot booking is atomic: slot marked as booked when booking created
 - Date handling: API accepts both string and Date objects, converts to Date internally
 
-### Database Port
-- PostgreSQL runs on port **5433** (not default 5432) to avoid conflicts
-- Docker container name: `hairbynoella-db`
+### Database Hosting
+- PostgreSQL is hosted on Neon (serverless); there is no local container
+- Use the **direct (non-pooled)** Neon endpoint for `DATABASE_URL` in dev to avoid PgBouncer quirks
+  with `drizzle-kit`; keep `?sslmode=require` in the connection string
 
 ### Styling Theme
 - Custom color palette: gold (#EAB308 family) and dark gray (#1F2937 family)

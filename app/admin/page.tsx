@@ -259,7 +259,14 @@ export default async function AdminDashboardPage() {
                     </p>
                     {day.total > 0 ? (
                       <div className="mt-2 space-y-1">
-                        <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          role="progressbar"
+                          aria-valuenow={occupancy}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-label={`${format(day.date, "EEEE d MMMM")}: ${occupancy}% booked`}
+                          className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden"
+                        >
                           <div
                             className={`h-full rounded-full ${
                               occupancy >= 80 ? "bg-red-400" : occupancy >= 50 ? "bg-amber-400" : "bg-green-400"
@@ -267,13 +274,13 @@ export default async function AdminDashboardPage() {
                             style={{ width: `${occupancy}%` }}
                           />
                         </div>
-                        <p className="text-[10px] sm:text-xs text-gray-500">
+                        <p className="text-xs text-gray-600">
                           <span className="text-green-600 font-medium">{day.available}</span>
                           {" "}free
                         </p>
                       </div>
                     ) : (
-                      <p className="mt-2 text-[10px] sm:text-xs text-gray-400">No slots</p>
+                      <p className="mt-2 text-xs text-gray-600">No slots</p>
                     )}
                   </div>
                 );

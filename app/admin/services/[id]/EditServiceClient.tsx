@@ -1,16 +1,20 @@
 "use client";
 
-import ServiceForm from "@/components/admin/ServiceForm";
+import ServiceForm, {
+  type ServiceFormOutput,
+  type ServiceInitialData,
+} from "@/components/admin/ServiceForm";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface EditServiceClientProps {
-  service: any;
+  service: ServiceInitialData & { id: string };
 }
 
 export default function EditServiceClient({ service }: EditServiceClientProps) {
   const router = useRouter();
 
-  const handleUpdate = async (data: any) => {
+  const handleUpdate = async (data: ServiceFormOutput) => {
     try {
       const res = await fetch("/api/services", {
         method: "PUT",
@@ -20,18 +24,19 @@ export default function EditServiceClient({ service }: EditServiceClientProps) {
 
       if (!res.ok) throw new Error("Failed to update service");
 
+      toast.success("Service updated");
       router.push("/admin/services");
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert("Failed to update service");
+      toast.error("Failed to update service");
       throw error;
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Edit Service</h2>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Edit Service</h1>
       <ServiceForm initialData={service} onSubmit={handleUpdate} submitLabel="Save Changes" />
     </div>
   );

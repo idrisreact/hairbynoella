@@ -5,7 +5,7 @@ import { Instagram, Facebook, Mail, MapPin, Phone } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-dark-800 border-t border-dark-100 pt-20 pb-10">
+    <footer className="bg-dark-800 border-t border-gray-200 pt-20 pb-10">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
@@ -80,7 +80,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-dark-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-dark-500">
+        <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-dark-500">
           <p>&copy; {new Date().getFullYear()} Hair by Noella. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-gold-400 transition-colors">Privacy Policy</a>

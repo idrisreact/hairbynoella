@@ -3,6 +3,7 @@
 
 @theme {
   /* Premium Light Palette */
+  --color-gold-50: #FCF9EE;
   --color-gold-100: #F9F1D8;
   --color-gold-200: #F0DEAA;
   --color-gold-300: #E6CB7D;
@@ -10,6 +11,8 @@
   /* Primary Gold */
   --color-gold-500: #AA8C2C;
   --color-gold-600: #806921;
+  --color-gold-700: #5F4E19;
+  --color-gold-900: #3B300F;
 
   --color-pink-50: #FDF2F8;
   --color-pink-100: #FCE7F3;
@@ -35,8 +38,16 @@
   --color-background: var(--color-dark-900);
   --color-foreground: var(--color-dark-400);
   --color-primary: var(--color-gold-400);
+  --color-primary-foreground: #FFFFFF;
   --color-secondary: var(--color-dark-800);
+  --color-secondary-foreground: var(--color-dark-400);
   --color-muted: var(--color-dark-500);
+  --color-accent: var(--color-dark-700);
+  --color-accent-foreground: var(--color-dark-400);
+  --color-destructive: #DC2626;
+  --color-ring: var(--color-gold-400);
+  --color-border: var(--color-dark-600);
+  --color-input: var(--color-dark-600);
 
   /* Fonts */
   --font-serif: var(--font-playfair);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { db } from '@/lib/db';
 import { services } from '@/lib/schema';
@@ -73,15 +74,16 @@ export async function POST(request: NextRequest) {
     // Handle Zod validation errors
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }
 
     // Handle Stripe errors
-    if ((error as any).type === 'StripeError') {
+    if (error instanceof Stripe.errors.StripeError) {
+      console.error('Payment intent - Stripe error:', error.type, error.code);
       return NextResponse.json(
-        { error: 'Payment processing error', message: (error as Error).message },
+        { error: 'Payment processing error' },
         { status: 400 }
       );
     }

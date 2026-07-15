@@ -3,8 +3,10 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db";
 import * as schema from "./schema";
 
+const baseURL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+
 export const auth = betterAuth({
-    baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+    baseURL,
     emailAndPassword: {
         enabled: true,
     },
@@ -36,9 +38,11 @@ export const auth = betterAuth({
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
         },
     },
-    trustedOrigins: ["http://localhost:3000"],
+    trustedOrigins: [baseURL],
     advanced: {
         cookiePrefix: "better-auth",
-        useSecureCookies: false, // Must be false for localhost (no HTTPS)
+        // Secure cookies require HTTPS, so key off the deployment URL:
+        // false on http://localhost:3000, true in production.
+        useSecureCookies: baseURL.startsWith("https://"),
     },
 });

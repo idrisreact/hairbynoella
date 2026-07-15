@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Trash2, Pencil } from "lucide-react";
 import Link from "next/link";
+import ActionButton, { type ActionResult } from "@/components/admin/ActionButton";
 
 interface Service {
   id: string;
@@ -16,7 +17,7 @@ interface Service {
 interface ServicesTableProps {
   services: Service[];
   categories: string[];
-  deleteAction: (id: string) => Promise<void>;
+  deleteAction: (id: string) => Promise<ActionResult>;
 }
 
 export default function ServicesTable({ services, categories, deleteAction }: ServicesTableProps) {
@@ -29,10 +30,11 @@ export default function ServicesTable({ services, categories, deleteAction }: Se
   return (
     <div className="space-y-4">
       {/* Category Tabs */}
-      <div className="flex flex-wrap gap-2">
+      <div role="group" aria-label="Filter services by category" className="flex flex-wrap gap-2">
         <button
           onClick={() => setActiveCategory("All")}
-          className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors
+          aria-pressed={activeCategory === "All"}
+          className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400
             ${activeCategory === "All"
               ? "bg-gold-500 text-white shadow-sm"
               : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"}`}
@@ -46,7 +48,8 @@ export default function ServicesTable({ services, categories, deleteAction }: Se
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors
+              aria-pressed={activeCategory === cat}
+              className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400
                 ${activeCategory === cat
                   ? "bg-gold-500 text-white shadow-sm"
                   : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"}`}
@@ -62,13 +65,16 @@ export default function ServicesTable({ services, categories, deleteAction }: Se
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full">
+            <caption className="sr-only">
+              Services with category, price, duration and actions
+            </caption>
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Duration</th>
-                <th className="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Category</th>
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Price</th>
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Duration</th>
+                <th scope="col" className="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -100,21 +106,25 @@ export default function ServicesTable({ services, categories, deleteAction }: Se
                     <div className="flex items-center justify-end gap-1.5">
                       <Link
                         href={`/admin/services/${service.id}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-gold-600 hover:bg-gold-50 rounded-md transition-colors"
-                        title="Edit"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-gold-600 hover:bg-gold-50 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                        aria-label={`Edit ${service.name}`}
                       >
-                        <Pencil className="w-3.5 h-3.5" />
+                        <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
                         Edit
                       </Link>
-                      <form action={() => deleteAction(service.id)}>
-                        <button
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          Delete
-                        </button>
-                      </form>
+                      <ActionButton
+                        action={() => deleteAction(service.id)}
+                        confirm={{
+                          title: "Delete service?",
+                          description: `This permanently removes "${service.name}". This cannot be undone.`,
+                          actionLabel: "Delete",
+                        }}
+                        aria-label={`Delete ${service.name}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 disabled:opacity-50"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                        Delete
+                      </ActionButton>
                     </div>
                   </td>
                 </tr>

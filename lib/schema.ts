@@ -81,7 +81,7 @@ export const bookings = pgTable('bookings', {
     hairPhotoUrl: text('hair_photo_url'),
     notes: text('notes'),
     // Payment fields
-    stripePaymentIntentId: text('stripe_payment_intent_id'),
+    stripePaymentIntentId: text('stripe_payment_intent_id').unique(),
     paymentStatus: text('payment_status').default('pending'), // 'pending', 'succeeded', 'failed', 'refunded'
     depositAmount: integer('deposit_amount'), // In pence (e.g., 2000 = £20.00)
     fullServicePrice: integer('full_service_price'), // In pence
@@ -91,6 +91,7 @@ export const bookings = pgTable('bookings', {
     refundReason: text('refund_reason'),
     paymentDate: timestamp('payment_date'),
     refundDate: timestamp('refund_date'),
+    archivedAt: timestamp('archived_at'),
     createdAt: timestamp('created_at').defaultNow(),
 });
 

@@ -5,8 +5,15 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { stripe } from "@/lib/stripe";
+
+function isUniqueViolation(error: unknown): boolean {
+    const code =
+        (error as { code?: string })?.code ??
+        (error as { cause?: { code?: string } })?.cause?.code;
+    return code === "23505";
+}
 
 const bookingSchema = z.object({
     serviceId: z.string(),
@@ -23,7 +30,6 @@ const bookingSchema = z.object({
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        console.log("Booking request body:", body);
 
         // Ensure date is treated correctly
         if (typeof body.date === 'string') {
@@ -56,6 +62,28 @@ export async function POST(req: Request) {
             );
         }
 
+        // The payment must have been made for the service being booked
+        if (paymentIntent.metadata.serviceId && paymentIntent.metadata.serviceId !== serviceId) {
+            return NextResponse.json(
+                { error: "Payment does not match the selected service" },
+                { status: 400 }
+            );
+        }
+
+        // Reject reuse of a payment intent that already has a booking
+        const existingBooking = await db
+            .select({ id: bookings.id })
+            .from(bookings)
+            .where(eq(bookings.stripePaymentIntentId, stripePaymentIntentId))
+            .limit(1);
+
+        if (existingBooking.length > 0) {
+            return NextResponse.json(
+                { error: "This payment has already been used for a booking." },
+                { status: 409 }
+            );
+        }
+
         // Optional: Check for authentication to link user
         let session = null;
         try {
@@ -66,44 +94,90 @@ export async function POST(req: Request) {
             console.warn("Auth check failed (non-fatal):", authError);
         }
 
-        console.log("Attempting to insert booking into DB...");
-
         // Extract payment metadata
         const depositAmount = paymentIntent.amount;
         const fullServicePrice = paymentIntent.metadata.fullServicePrice
             ? parseInt(paymentIntent.metadata.fullServicePrice)
             : depositAmount;
 
-        // Mark slot as booked (payment is already verified as succeeded)
-        await db.update(availabilitySlots)
-            .set({ isBooked: true })
-            .where(eq(availabilitySlots.id, slotId));
+        // Claim the slot and create the booking atomically. The slot update is
+        // conditional on it still being free, so two paid customers can never
+        // end up with the same slot.
+        let newBooking;
+        try {
+            newBooking = await db.transaction(async (tx) => {
+                const claimed = await tx
+                    .update(availabilitySlots)
+                    .set({ isBooked: true })
+                    .where(and(
+                        eq(availabilitySlots.id, slotId),
+                        eq(availabilitySlots.isBooked, false),
+                        eq(availabilitySlots.blockedByAdmin, false),
+                    ))
+                    .returning({ id: availabilitySlots.id });
 
-        // Create booking with payment information
-        const newBooking = await db.insert(bookings).values({
-            id: uuidv4(),
-            userId: session?.user?.id,
-            serviceId,
-            slotId,
-            date: new Date(date), // Ensure it's a Date object
-            customerName,
-            customerEmail,
-            customerPhone,
-            hairPhotoUrl,
-            notes,
-            status: 'pending',
-            stripePaymentIntentId,
-            paymentStatus: 'succeeded',
-            depositAmount,
-            fullServicePrice,
-            amountPaid: depositAmount,
-            currency: 'gbp',
-            paymentDate: new Date(),
-        }).returning();
+                if (claimed.length === 0) {
+                    return null; // Slot no longer available
+                }
 
-        console.log("Booking created successfully:", newBooking[0]);
+                const inserted = await tx.insert(bookings).values({
+                    id: uuidv4(),
+                    userId: session?.user?.id,
+                    serviceId,
+                    slotId,
+                    date: new Date(date), // Ensure it's a Date object
+                    customerName,
+                    customerEmail,
+                    customerPhone,
+                    hairPhotoUrl,
+                    notes,
+                    status: 'pending',
+                    stripePaymentIntentId,
+                    paymentStatus: 'succeeded',
+                    depositAmount,
+                    fullServicePrice,
+                    amountPaid: depositAmount,
+                    currency: 'gbp',
+                    paymentDate: new Date(),
+                }).returning();
 
-        return NextResponse.json(newBooking[0], { status: 201 });
+                return inserted[0];
+            });
+        } catch (error) {
+            if (isUniqueViolation(error)) {
+                // Same payment intent raced past the duplicate check above; the
+                // transaction rolled back, so the claimed slot was released.
+                return NextResponse.json(
+                    { error: "This payment has already been used for a booking." },
+                    { status: 409 }
+                );
+            }
+            throw error;
+        }
+
+        if (!newBooking) {
+            // Slot was taken while the customer was paying — refund the deposit
+            let refunded = false;
+            try {
+                await stripe.refunds.create({ payment_intent: stripePaymentIntentId });
+                refunded = true;
+            } catch (refundError) {
+                console.error(
+                    `Failed to auto-refund payment intent ${stripePaymentIntentId} after slot conflict:`,
+                    refundError
+                );
+            }
+            return NextResponse.json(
+                {
+                    error: refunded
+                        ? "Sorry, that time slot was just booked by someone else. Your deposit has been refunded — please choose another time."
+                        : "Sorry, that time slot was just booked by someone else. We couldn't refund your deposit automatically — please contact us and we'll sort it out.",
+                },
+                { status: 409 }
+            );
+        }
+
+        return NextResponse.json(newBooking, { status: 201 });
     } catch (error) {
         console.error("Error creating booking:", error);
         // @ts-ignore

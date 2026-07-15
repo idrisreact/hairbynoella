@@ -1,17 +1,15 @@
 import { db } from "@/lib/db";
 import { services } from "@/lib/schema";
 import { NextResponse } from "next/server";
+import { requireAdminApi } from "@/lib/admin-auth";
 
 export async function GET() {
     try {
-        console.log("Fetching services from DB...");
         const allServices = await db.select().from(services);
-        console.log(`Fetched ${allServices.length} services.`);
         return NextResponse.json(allServices);
     } catch (error) {
         console.error("Error fetching services:", error);
-        // @ts-ignore
-        return NextResponse.json({ error: "Failed to fetch services: " + error.message }, { status: 500 });
+        return NextResponse.json({ error: "Failed to fetch services" }, { status: 500 });
     }
 }
 
@@ -28,6 +26,9 @@ const serviceSchema = z.object({
 });
 
 export async function POST(req: Request) {
+    const admin = await requireAdminApi();
+    if (!admin.ok) return admin.response;
+
     try {
         const body = await req.json();
         const result = serviceSchema.safeParse(body);
@@ -64,6 +65,9 @@ const updateSchema = z.object({
 });
 
 export async function PUT(req: Request) {
+    const admin = await requireAdminApi();
+    if (!admin.ok) return admin.response;
+
     try {
         const body = await req.json();
         const result = updateSchema.safeParse(body);

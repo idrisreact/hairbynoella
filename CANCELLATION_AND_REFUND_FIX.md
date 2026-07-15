@@ -160,18 +160,18 @@ Refund API - Creating Stripe refund for payment intent: pi_xxx
 1. **"Unauthorized" Error:**
    - Check admin user has `role = 'admin'` in database:
    ```bash
-   docker exec hairbynoella-db psql -U postgres -d hairbynoella -c "SELECT id, email, role FROM \"user\";"
+   psql "$DATABASE_URL" -c "SELECT id, email, role FROM \"user\";"
    ```
    - If role is NULL, update it:
    ```bash
-   docker exec hairbynoella-db psql -U postgres -d hairbynoella -c "UPDATE \"user\" SET role = 'admin' WHERE email = 'your-email@example.com';"
+   psql "$DATABASE_URL" -c "UPDATE \"user\" SET role = 'admin' WHERE email = 'your-email@example.com';"
    ```
 
 2. **"Payment intent mismatch" Error:**
    - This means the payment intent ID doesn't match
    - Check the booking in database:
    ```bash
-   docker exec hairbynoella-db psql -U postgres -d hairbynoella -c "SELECT id, customer_name, stripe_payment_intent_id, payment_status FROM bookings LIMIT 5;"
+   psql "$DATABASE_URL" -c "SELECT id, customer_name, stripe_payment_intent_id, payment_status FROM bookings LIMIT 5;"
    ```
 
 3. **Stripe API Error:**
@@ -233,7 +233,7 @@ After testing, verify:
 Check booking status after actions:
 ```bash
 # View recent bookings with payment info
-docker exec hairbynoella-db psql -U postgres -d hairbynoella -c "
+psql "$DATABASE_URL" -c "
 SELECT
   customer_name,
   status,
@@ -249,7 +249,7 @@ LIMIT 5;"
 Check if slots were released:
 ```bash
 # View slot booking status
-docker exec hairbynoella-db psql -U postgres -d hairbynoella -c "
+psql "$DATABASE_URL" -c "
 SELECT id, start_time, is_booked
 FROM availability_slots
 WHERE DATE(start_time) >= CURRENT_DATE

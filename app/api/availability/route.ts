@@ -4,8 +4,7 @@ import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import { eq, and, gte, lte, or } from "drizzle-orm";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { requireAdminApi } from "@/lib/admin-auth";
 
 const createSlotSchema = z.object({
     startTime: z.string().transform((str) => new Date(str)),
@@ -35,8 +34,6 @@ export async function GET(req: Request) {
         const dateStr = searchParams.get("date");
         const isAdminView = searchParams.get("admin") === "true";
 
-        console.log("Fetching slots - date:", dateStr, "adminView:", isAdminView);
-
         let conditions = [];
 
         // For public view, exclude booked, blocked, and past slots
@@ -64,7 +61,6 @@ export async function GET(req: Request) {
             : db.select().from(availabilitySlots);
 
         const slots = await query;
-        console.log(`Found ${slots.length} slots`);
         return NextResponse.json(slots);
     } catch (error) {
         console.error("Error fetching slots:", error);
@@ -77,25 +73,11 @@ export async function GET(req: Request) {
 // - { startTime: ISO string } for single slot
 // - { bulk: true, startDate, endDate, startTime, endTime, interval, daysOfWeek } for bulk creation
 export async function POST(req: Request) {
+    const admin = await requireAdminApi();
+    if (!admin.ok) return admin.response;
+
     try {
-        // Check admin authentication
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
-
-        // For development: allow if session exists (even without admin role)
-        // For production: uncomment the role check below
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized - Please sign in" }, { status: 401 });
-        }
-
-        // TODO: Uncomment this after setting up admin user in database
-        // if (session.user.role !== "admin") {
-        //     return NextResponse.json({ error: "Unauthorized - Admin access required" }, { status: 403 });
-        // }
-
         const body = await req.json();
-        console.log("Creating slot(s) with body:", body);
 
         // Check if it's a bulk creation request
         if (body.bulk) {
@@ -148,8 +130,6 @@ export async function POST(req: Request) {
                 return NextResponse.json({ error: "No slots to create with given parameters" }, { status: 400 });
             }
 
-            console.log(`Creating ${slotsToCreate.length} slots`);
-
             // Batch insert
             const createdSlots = await db.insert(availabilitySlots).values(slotsToCreate).returning();
 
@@ -176,8 +156,6 @@ export async function POST(req: Request) {
                 blockedByAdmin: false,
             }).returning();
 
-            console.log("Slot created:", newSlot[0]);
-
             return NextResponse.json(newSlot[0], { status: 201 });
         }
     } catch (error) {
@@ -188,17 +166,10 @@ export async function POST(req: Request) {
 
 // PATCH: Toggle block status
 export async function PATCH(req: Request) {
+    const admin = await requireAdminApi();
+    if (!admin.ok) return admin.response;
+
     try {
-        // Check admin authentication
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
-
-        // For development: allow if session exists (even without admin role)
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized - Please sign in" }, { status: 401 });
-        }
-
         const body = await req.json();
         const result = toggleBlockSchema.safeParse(body);
 
@@ -226,17 +197,10 @@ export async function PATCH(req: Request) {
 
 // DELETE: Remove slot
 export async function DELETE(req: Request) {
+    const admin = await requireAdminApi();
+    if (!admin.ok) return admin.response;
+
     try {
-        // Check admin authentication
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
-
-        // For development: allow if session exists (even without admin role)
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized - Please sign in" }, { status: 401 });
-        }
-
         const { searchParams } = new URL(req.url);
         const id = searchParams.get("id");
 

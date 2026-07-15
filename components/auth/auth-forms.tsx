@@ -54,7 +54,7 @@ export function SignInForm() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border border-dark-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
             required
           />
         </div>
@@ -64,7 +64,7 @@ export function SignInForm() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border border-dark-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
             required
           />
         </div>
@@ -79,7 +79,7 @@ export function SignInForm() {
         
         <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-dark-200" />
+            <span className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-white px-2 text-dark-500">Or continue with</span>
@@ -168,7 +168,7 @@ export function SignUpForm() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full p-3 border border-dark-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
             required
           />
         </div>
@@ -178,7 +178,7 @@ export function SignUpForm() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border border-dark-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
             required
           />
         </div>
@@ -188,7 +188,7 @@ export function SignUpForm() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border border-dark-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
             required
             minLength={8}
           />
@@ -204,7 +204,7 @@ export function SignUpForm() {
 
         <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-dark-200" />
+            <span className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-white px-2 text-dark-500">Or continue with</span>

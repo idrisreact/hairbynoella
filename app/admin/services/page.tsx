@@ -4,13 +4,25 @@ import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { getAdminSession } from "@/lib/admin-auth";
 import ServicesTable from "@/components/admin/ServicesTable";
+import type { ActionResult } from "@/components/admin/ActionButton";
 
-async function deleteService(id: string) {
+async function deleteService(id: string): Promise<ActionResult> {
   "use server";
-  await db.delete(services).where(eq(services.id, id));
-  revalidatePath("/admin/services");
-  revalidatePath("/services");
+
+  const session = await getAdminSession();
+  if (!session) return { success: false, message: "Unauthorized" };
+
+  try {
+    await db.delete(services).where(eq(services.id, id));
+    revalidatePath("/admin/services");
+    revalidatePath("/services");
+    return { success: true, message: "Service deleted" };
+  } catch (error) {
+    console.error("Error deleting service:", error);
+    return { success: false, message: "Failed to delete service" };
+  }
 }
 
 export default async function AdminServicesPage() {
@@ -23,7 +35,7 @@ export default async function AdminServicesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-bold text-gray-900">Services</h2>
+          <h1 className="text-2xl font-bold text-gray-900">Services</h1>
           <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full">
             {allServices.length} total
           </span>

@@ -1,32 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { bookings, availabilitySlots } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
-import { auth } from '@/lib/auth';
+import { requireAdminApi } from '@/lib/admin-auth';
 
 const cancelSchema = z.object({
   bookingId: z.string().min(1, 'Booking ID is required'),
 });
 
 export async function POST(request: NextRequest) {
+  const admin = await requireAdminApi();
+  if (!admin.ok) return admin.response;
+
   try {
-    // Check admin authentication
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    console.log('Cancel API - Session:', session?.user);
-
-    if (!session || (session.user as any).role !== 'admin') {
-      console.error('Cancel API - Unauthorized access attempt');
-      return NextResponse.json(
-        { error: 'Unauthorized. Admin access required.' },
-        { status: 403 }
-      );
-    }
-
     // Parse and validate request body
     const body = await request.json();
     const validatedData = cancelSchema.parse(body);
@@ -75,7 +62,7 @@ export async function POST(request: NextRequest) {
     // Handle Zod validation errors
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }

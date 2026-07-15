@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { format, addDays } from "date-fns";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import ActionButton, { type ActionResult } from "@/components/admin/ActionButton";
 import { Trash2, Plus, Calendar as CalendarIcon, Ban, Check, Clock, Loader2 } from "lucide-react";
 
 interface Slot {
@@ -32,7 +34,6 @@ export default function AdminAvailabilityPage() {
   });
 
   const [bulkLoading, setBulkLoading] = useState(false);
-  const [bulkSuccess, setBulkSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSlots = async () => {
@@ -68,6 +69,7 @@ export default function AdminAvailabilityPage() {
       });
 
       if (res.ok) {
+        toast.success("Slot added");
         await fetchSlots();
         setSelectedTime("10:00");
       } else {
@@ -84,7 +86,6 @@ export default function AdminAvailabilityPage() {
   const createBulkSlots = async () => {
     setBulkLoading(true);
     setError(null);
-    setBulkSuccess(null);
     try {
       const res = await fetch("/api/availability", {
         method: "POST",
@@ -94,7 +95,7 @@ export default function AdminAvailabilityPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setBulkSuccess(`Successfully created ${data.count} slots`);
+        toast.success(`Created ${data.count} slots`);
         await fetchSlots();
       } else {
         const data = await res.json();
@@ -117,6 +118,7 @@ export default function AdminAvailabilityPage() {
       });
 
       if (res.ok) {
+        toast.success(currentBlockStatus ? "Slot unblocked" : "Slot blocked");
         await fetchSlots();
       } else {
         setError("Failed to toggle block status");
@@ -126,20 +128,18 @@ export default function AdminAvailabilityPage() {
     }
   };
 
-  const deleteSlot = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this slot?")) return;
-    setError(null);
+  const deleteSlot = async (id: string): Promise<ActionResult> => {
     try {
       const res = await fetch(`/api/availability?id=${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
-        setSlots(slots.filter((s) => s.id !== id));
-      } else {
-        setError("Failed to delete slot");
+        setSlots((prev) => prev.filter((s) => s.id !== id));
+        return { success: true, message: "Slot deleted" };
       }
-    } catch (err) {
-      setError("Network error while deleting slot");
+      return { success: false, message: "Failed to delete slot" };
+    } catch {
+      return { success: false, message: "Network error while deleting slot" };
     }
   };
 
@@ -183,12 +183,12 @@ export default function AdminAvailabilityPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Availability</h2>
-        <p className="text-gray-500 mt-1">Create time slots, block times, and manage your calendar</p>
+        <h1 className="text-2xl font-bold text-gray-900">Availability</h1>
+        <p className="text-gray-600 mt-1">Create time slots, block times, and manage your calendar</p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+        <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
           {error}
         </div>
       )}
@@ -197,10 +197,15 @@ export default function AdminAvailabilityPage() {
         {/* Creation Forms */}
         <div className="lg:col-span-1 space-y-5">
           {/* Tab Selector */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-1.5 flex">
+          <div
+            role="group"
+            aria-label="Slot creation mode"
+            className="bg-white rounded-xl border border-gray-200 shadow-sm p-1.5 flex"
+          >
             <button
               onClick={() => setActiveTab("single")}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+              aria-pressed={activeTab === "single"}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 ${
                 activeTab === "single"
                   ? "bg-gold-500 text-white shadow-sm"
                   : "text-gray-600 hover:bg-gray-50"
@@ -210,7 +215,8 @@ export default function AdminAvailabilityPage() {
             </button>
             <button
               onClick={() => setActiveTab("bulk")}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+              aria-pressed={activeTab === "bulk"}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 ${
                 activeTab === "bulk"
                   ? "bg-gold-500 text-white shadow-sm"
                   : "text-gray-600 hover:bg-gray-50"
@@ -229,8 +235,9 @@ export default function AdminAvailabilityPage() {
               </h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">Date</label>
+                  <label htmlFor="slot-date" className="block text-xs font-medium text-gray-600 mb-1.5">Date</label>
                   <input
+                    id="slot-date"
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
@@ -238,8 +245,9 @@ export default function AdminAvailabilityPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">Time</label>
+                  <label htmlFor="slot-time" className="block text-xs font-medium text-gray-600 mb-1.5">Time</label>
                   <input
+                    id="slot-time"
                     type="time"
                     value={selectedTime}
                     onChange={(e) => setSelectedTime(e.target.value)}
@@ -277,8 +285,9 @@ export default function AdminAvailabilityPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Start Date</label>
+                    <label htmlFor="bulk-start-date" className="block text-xs font-medium text-gray-600 mb-1.5">Start Date</label>
                     <input
+                      id="bulk-start-date"
                       type="date"
                       value={bulkForm.startDate}
                       onChange={(e) => setBulkForm(prev => ({ ...prev, startDate: e.target.value }))}
@@ -286,8 +295,9 @@ export default function AdminAvailabilityPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">End Date</label>
+                    <label htmlFor="bulk-end-date" className="block text-xs font-medium text-gray-600 mb-1.5">End Date</label>
                     <input
+                      id="bulk-end-date"
                       type="date"
                       value={bulkForm.endDate}
                       onChange={(e) => setBulkForm(prev => ({ ...prev, endDate: e.target.value }))}
@@ -298,8 +308,9 @@ export default function AdminAvailabilityPage() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Start Time</label>
+                    <label htmlFor="bulk-start-time" className="block text-xs font-medium text-gray-600 mb-1.5">Start Time</label>
                     <input
+                      id="bulk-start-time"
                       type="time"
                       value={bulkForm.startTime}
                       onChange={(e) => setBulkForm(prev => ({ ...prev, startTime: e.target.value }))}
@@ -307,8 +318,9 @@ export default function AdminAvailabilityPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">End Time</label>
+                    <label htmlFor="bulk-end-time" className="block text-xs font-medium text-gray-600 mb-1.5">End Time</label>
                     <input
+                      id="bulk-end-time"
                       type="time"
                       value={bulkForm.endTime}
                       onChange={(e) => setBulkForm(prev => ({ ...prev, endTime: e.target.value }))}
@@ -318,10 +330,11 @@ export default function AdminAvailabilityPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                  <label htmlFor="bulk-interval" className="block text-xs font-medium text-gray-600 mb-1.5">
                     Interval (minutes)
                   </label>
                   <select
+                    id="bulk-interval"
                     value={bulkForm.interval}
                     onChange={(e) => setBulkForm(prev => ({ ...prev, interval: Number(e.target.value) }))}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-gold-400 focus:border-transparent outline-none"
@@ -335,15 +348,16 @@ export default function AdminAvailabilityPage() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-2">Days of Week</label>
+                <fieldset>
+                  <legend className="block text-xs font-medium text-gray-600 mb-2">Days of Week</legend>
                   <div className="flex flex-wrap gap-1.5">
                     {daysOfWeek.map(day => (
                       <button
                         key={day.value}
                         type="button"
                         onClick={() => toggleDayOfWeek(day.value)}
-                        className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        aria-pressed={bulkForm.daysOfWeek.includes(day.value)}
+                        className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 ${
                           bulkForm.daysOfWeek.includes(day.value)
                             ? "bg-gold-500 text-white shadow-sm"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -353,13 +367,7 @@ export default function AdminAvailabilityPage() {
                       </button>
                     ))}
                   </div>
-                </div>
-
-                {bulkSuccess && (
-                  <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-sm">
-                    {bulkSuccess}
-                  </div>
-                )}
+                </fieldset>
 
                 <Button
                   onClick={createBulkSlots}
@@ -422,9 +430,9 @@ export default function AdminAvailabilityPage() {
 
             {slots.length === 0 ? (
               <div className="text-center py-12">
-                <CalendarIcon className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 text-sm font-medium">No slots for this date</p>
-                <p className="text-gray-400 text-xs mt-1">Create slots using the forms on the left</p>
+                <CalendarIcon className="w-10 h-10 text-gray-300 mx-auto mb-3" aria-hidden="true" />
+                <p className="text-gray-600 text-sm font-medium">No slots for this date</p>
+                <p className="text-gray-600 text-xs mt-1">Create slots using the forms on the left</p>
               </div>
             ) : (
               <div className="space-y-2 max-h-[550px] overflow-y-auto pr-1">
@@ -447,24 +455,31 @@ export default function AdminAvailabilityPage() {
                       {!slot.isBooked && (
                         <button
                           onClick={() => toggleBlockStatus(slot.id, slot.blockedByAdmin)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 ${
                             slot.blockedByAdmin
                               ? "bg-green-100 text-green-700 hover:bg-green-200"
                               : "bg-red-100 text-red-700 hover:bg-red-200"
                           }`}
-                          title={slot.blockedByAdmin ? "Unblock slot" : "Block slot"}
+                          aria-label={`${slot.blockedByAdmin ? "Unblock" : "Block"} ${format(new Date(slot.startTime), "h:mm a")} slot`}
                         >
                           {slot.blockedByAdmin ? "Unblock" : "Block"}
                         </button>
                       )}
-                      <button
-                        onClick={() => deleteSlot(slot.id)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                        title="Delete slot"
-                        disabled={slot.isBooked}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {!slot.isBooked && (
+                        <ActionButton
+                          action={() => deleteSlot(slot.id)}
+                          confirm={{
+                            title: "Delete slot?",
+                            description: `This removes the ${format(new Date(slot.startTime), "h:mm a")} slot. This cannot be undone.`,
+                            actionLabel: "Delete",
+                          }}
+                          aria-label={`Delete ${format(new Date(slot.startTime), "h:mm a")} slot`}
+                          title="Delete slot"
+                          className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 disabled:opacity-50"
+                        >
+                          <Trash2 className="w-4 h-4" aria-hidden="true" />
+                        </ActionButton>
+                      )}
                     </div>
                   </div>
                 ))}

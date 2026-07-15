@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import { format } from "date-fns";
-import { Search, Calendar } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { formatPrice } from "@/lib/pricing";
 
 interface Booking {
@@ -22,28 +21,22 @@ interface BookingsTableProps {
   bookings: Booking[];
   /** Server-rendered action cells keyed by booking ID */
   actionSlots: Record<string, React.ReactNode>;
+  /** True when a status filter or search query is active */
+  hasFilters?: boolean;
 }
 
-export default function BookingsTable({ bookings, actionSlots }: BookingsTableProps) {
-  const [search, setSearch] = useState("");
-
-  const filtered = useMemo(() => {
-    if (!search.trim()) return bookings;
-    const q = search.toLowerCase();
-    return bookings.filter(
-      (b) =>
-        b.customerName.toLowerCase().includes(q) ||
-        b.customerEmail.toLowerCase().includes(q)
-    );
-  }, [bookings, search]);
-
+export default function BookingsTable({ bookings, actionSlots, hasFilters = false }: BookingsTableProps) {
   if (bookings.length === 0) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm py-16 text-center">
-        <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-        <p className="text-gray-500 font-medium">No bookings yet</p>
-        <p className="text-sm text-gray-400 mt-1">
-          Bookings will appear here when customers make reservations
+        <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-3" aria-hidden="true" />
+        <p className="text-gray-600 font-medium">
+          {hasFilters ? "No bookings match your filters" : "No bookings yet"}
+        </p>
+        <p className="text-sm text-gray-600 mt-1">
+          {hasFilters
+            ? "Try adjusting the status filter or search query"
+            : "Bookings will appear here when customers make reservations"}
         </p>
       </div>
     );
@@ -51,52 +44,37 @@ export default function BookingsTable({ bookings, actionSlots }: BookingsTablePr
 
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or email..."
-          className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent shadow-sm"
-          aria-label="Search bookings"
-        />
-        {search && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
-            {filtered.length} result{filtered.length !== 1 ? "s" : ""}
-          </span>
-        )}
-      </div>
-
       {/* Desktop Table */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hidden md:block">
         <div className="overflow-x-auto">
           <table className="min-w-full">
+            <caption className="sr-only">
+              Bookings with customer, service, date, status, payment and actions
+            </caption>
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Service
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Date & Time
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Payment
                 </th>
-                <th className="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((booking, index) => (
+              {bookings.map((booking, index) => (
                 <tr
                   key={booking.id}
                   className={`border-b border-gray-50 hover:bg-gray-50/50 transition-colors ${
@@ -141,15 +119,6 @@ export default function BookingsTable({ bookings, actionSlots }: BookingsTablePr
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-5 py-10 text-center">
-                    <p className="text-sm text-gray-500">
-                      No bookings match &ldquo;{search}&rdquo;
-                    </p>
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
@@ -157,14 +126,7 @@ export default function BookingsTable({ bookings, actionSlots }: BookingsTablePr
 
       {/* Mobile Card List */}
       <div className="md:hidden space-y-3">
-        {filtered.length === 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm py-10 text-center">
-            <p className="text-sm text-gray-500">
-              No bookings match &ldquo;{search}&rdquo;
-            </p>
-          </div>
-        )}
-        {filtered.map((booking) => (
+        {bookings.map((booking) => (
           <div
             key={booking.id}
             className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-3"

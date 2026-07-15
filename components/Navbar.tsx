@@ -68,7 +68,7 @@ export default function Navbar() {
           ))}
           
           {stableSession ? (
-            <div className="flex items-center gap-4 ml-4 border-l border-dark-100 pl-4">
+            <div className="flex items-center gap-4 ml-4 border-l border-gray-200 pl-4">
                 {(stableSession.user as any).role === "admin" && (
                     <Link 
                         href="/admin"

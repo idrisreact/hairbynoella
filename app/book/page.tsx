@@ -5,7 +5,7 @@ import { Suspense } from "react";
 
 export default function BookingPage() {
   return (
-    <main className="min-h-screen bg-dark-50">
+    <main className="min-h-screen bg-gray-50">
       <Navbar />
       
       <section className="pt-32 pb-20 px-4">
