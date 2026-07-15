@@ -1,0 +1,1 @@
+ALTER TABLE "bookings" ADD COLUMN "archived_at" timestamp;

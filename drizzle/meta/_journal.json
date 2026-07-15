@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1764005986571,
+      "tag": "0000_white_the_fallen",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769127208948,
+      "tag": "0001_familiar_blackheart",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784072552623,
+      "tag": "0002_gigantic_jetstream",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 export const ProductList = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
@@ -19,7 +19,7 @@ export const ProductList = () => {
 
       const data = await response.json();
       setProducts(data.products || []);
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message);
       console.error("Error fetching products:", err);
     } finally {
