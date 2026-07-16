@@ -3,10 +3,13 @@ import Hero from "@/components/Hero";
 import Services from "@/components/Services";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
+import { JsonLd, hairSalonSchema } from "@/components/seo/JsonLd";
+import { siteConfig } from "@/lib/site";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-white text-dark-400 selection:bg-gold-400/30">
+      <JsonLd data={hairSalonSchema(siteConfig.url)} />
       <Navbar />
       <Hero />
       <Services />
