@@ -1,12 +1,11 @@
 import { db } from "@/lib/db";
-import { bookings, availabilitySlots } from "@/lib/schema";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
+import { bookings, availabilitySlots, services } from "@/lib/schema";
+import { after, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import { and, eq } from "drizzle-orm";
 import { stripe } from "@/lib/stripe";
+import { sendBookingEmails } from "@/lib/email";
 
 function isUniqueViolation(error: unknown): boolean {
     const code =
@@ -84,16 +83,6 @@ export async function POST(req: Request) {
             );
         }
 
-        // Optional: Check for authentication to link user
-        let session = null;
-        try {
-            session = await auth.api.getSession({
-                headers: await headers()
-            });
-        } catch (authError) {
-            console.warn("Auth check failed (non-fatal):", authError);
-        }
-
         // Extract payment metadata
         const depositAmount = paymentIntent.amount;
         const fullServicePrice = paymentIntent.metadata.fullServicePrice
@@ -122,7 +111,6 @@ export async function POST(req: Request) {
 
                 const inserted = await tx.insert(bookings).values({
                     id: uuidv4(),
-                    userId: session?.user?.id,
                     serviceId,
                     slotId,
                     date: new Date(date), // Ensure it's a Date object
@@ -177,29 +165,41 @@ export async function POST(req: Request) {
             );
         }
 
+        // Send the confirmation/invoice email (and admin alert) after the
+        // response goes out. sendBookingEmails never throws, so an email
+        // problem can't affect the paid booking.
+        const booking = newBooking;
+        after(async () => {
+            try {
+                const [service, slot] = await Promise.all([
+                    db.select({ name: services.name }).from(services).where(eq(services.id, serviceId)).limit(1),
+                    db.select({ startTime: availabilitySlots.startTime }).from(availabilitySlots).where(eq(availabilitySlots.id, slotId)).limit(1),
+                ]);
+
+                await sendBookingEmails({
+                    bookingId: booking.id,
+                    customerName,
+                    customerEmail,
+                    customerPhone,
+                    serviceName: service[0]?.name ?? "your appointment",
+                    appointmentTime: slot[0]?.startTime ?? new Date(date),
+                    fullServicePrice,
+                    depositPaid: depositAmount,
+                    notes,
+                    hairPhotoUrl,
+                });
+            } catch (emailError) {
+                console.error(
+                    `Failed to send booking emails for booking ${booking.id}:`,
+                    emailError
+                );
+            }
+        });
+
         return NextResponse.json(newBooking, { status: 201 });
     } catch (error) {
         console.error("Error creating booking:", error);
         // @ts-ignore
         return NextResponse.json({ error: "Failed to create booking: " + error.message }, { status: 500 });
-    }
-}
-
-export async function GET(req: Request) {
-    try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
-
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const userBookings = await db.select().from(bookings).where(eq(bookings.userId, session.user.id));
-        return NextResponse.json(userBookings);
-    } catch (error) {
-        console.error("Error fetching bookings:", error);
-        // @ts-ignore
-        return NextResponse.json({ error: "Failed to fetch bookings: " + error.message }, { status: 500 });
     }
 }

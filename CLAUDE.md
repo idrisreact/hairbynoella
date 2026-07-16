@@ -60,7 +60,10 @@ The application has two main domain areas:
 - `app/(root)/*` - Public pages using minimal layout
 - `app/admin/*` - Protected admin dashboard with sidebar navigation
 
-**Authentication Flow**:
+**Authentication Flow** (admin-only):
+- Auth exists only for the admin panel — customers book as guests and never sign in
+- Public registration is disabled (`disableSignUp` on both email/password and Google in `lib/auth.ts`); admin accounts are created manually
+- `/sign-in` is the admin entry point (email/password or Google) and redirects to `/admin`
 - Better Auth configured in `lib/auth.ts` with Drizzle adapter
 - Admin routes check `session.user.role === "admin"` in layout
 - Session retrieved via `auth.api.getSession({ headers: await headers() })`
@@ -72,8 +75,7 @@ The application has two main domain areas:
 - Drizzle client exported as `db` with schema imported
 
 **API Routes Pattern**:
-- `POST /api/bookings` - Creates booking, marks slot as booked (accepts both authenticated and guest bookings)
-- `GET /api/bookings` - Returns current user's bookings (requires auth)
+- `POST /api/bookings` - Creates guest booking, marks slot as booked, then sends confirmation/invoice email via `after()` (lib/email.ts, Resend)
 - `GET /api/services` - Returns all available services
 - `GET /api/availability?date=YYYY-MM-DD` - Returns available slots for date
 
@@ -95,6 +97,10 @@ Required in `.env`:
 DATABASE_URL=postgresql://<user>:<password>@<endpoint>.<region>.aws.neon.tech/<db>?sslmode=require
 BETTER_AUTH_SECRET=<generate-random-secret>
 BETTER_AUTH_URL=http://localhost:3000
+RESEND_API_KEY=<resend-api-key>            # booking confirmation emails; sends are skipped (with a warning) if unset
+EMAIL_FROM="Hair by Noella <bookings@yourdomain.com>"  # optional; defaults to Resend's onboarding address (dev only)
+EMAIL_REPLY_TO=<salon-inbox>               # optional; where customer replies go (can be any inbox, e.g. outlook.com)
+ADMIN_NOTIFICATION_EMAIL=<salon-inbox>     # optional; sends a new-booking alert to the salon when set
 ```
 
 ## Important Notes
@@ -105,7 +111,8 @@ BETTER_AUTH_URL=http://localhost:3000
 - Check line 17 in `app/admin/layout.tsx`
 
 ### Booking Flow
-- Bookings can be made by authenticated users or guests
+- All bookings are guest bookings (name/email/phone) — no customer accounts
+- Confirmation/invoice email (and optional admin alert) is sent after booking creation; email failure never fails a booking
 - Slot booking is atomic: slot marked as booked when booking created
 - Date handling: API accepts both string and Date objects, converts to Date internally
 

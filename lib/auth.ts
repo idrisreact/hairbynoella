@@ -9,6 +9,9 @@ export const auth = betterAuth({
     baseURL,
     emailAndPassword: {
         enabled: true,
+        // Auth is admin-only: customers book as guests, so public
+        // registration is closed. Admin accounts are created manually.
+        disableSignUp: true,
     },
     user: {
         additionalFields: {
@@ -17,9 +20,6 @@ export const auth = betterAuth({
                 defaultValue: "user",
                 input: false,
             },
-        },
-        changeEmail: {
-            enabled: true,
         },
     },
     database: drizzleAdapter(db, {
@@ -36,6 +36,9 @@ export const auth = betterAuth({
         google: {
             clientId: process.env.GOOGLE_CLIENT_ID as string,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+            // Existing admins sign in with Google; new Google accounts
+            // must not be auto-created now that registration is closed.
+            disableSignUp: true,
         },
     },
     trustedOrigins: [baseURL],
