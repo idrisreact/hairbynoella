@@ -8,6 +8,7 @@ import {
   Scissors,
   DollarSign,
   Clock,
+  Settings,
   LogOut,
   X,
 } from "lucide-react";
@@ -46,6 +47,11 @@ const navItems = [
     href: "/admin/availability",
     label: "Availability",
     icon: Clock,
+  },
+  {
+    href: "/admin/settings",
+    label: "Settings",
+    icon: Settings,
   },
 ];
 

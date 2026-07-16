@@ -14,6 +14,7 @@ const pageTitles: Record<string, string> = {
   "/admin/services": "Services",
   "/admin/services/new": "Add Service",
   "/admin/availability": "Availability",
+  "/admin/settings": "Settings",
 };
 
 export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
