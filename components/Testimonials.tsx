@@ -5,21 +5,9 @@ import { Star } from "lucide-react";
 
 const reviews = [
   {
-    name: "Sarah Jenkins",
-    role: "Regular Client",
-    content: "Noella is simply the best. She understands my hair texture perfectly and always recommends styles that protect my edges. I wouldn't trust anyone else.",
-    rating: 5,
-  },
-  {
-    name: "Amara Okeke",
-    role: "Bridal Client",
-    content: "She made me look like a queen on my wedding day. The attention to detail was incredible, and the style lasted all through the honeymoon.",
-    rating: 5,
-  },
-  {
-    name: "Jessica M.",
-    role: "New Client",
-    content: "The atmosphere is so relaxing and professional. I love that she takes her time and doesn't rush. My braids are neat and painless!",
+    name: "Noella WaNdaya",
+    role: "Client Review",
+    content: "Amazing Blow dry – Noella is so talented and understands clients hair types and what is required to achieve the results you want.",
     rating: 5,
   },
 ];
@@ -42,7 +30,7 @@ export default function Testimonials() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 max-w-xl mx-auto">
           {reviews.map((review, index) => (
             <motion.div
               key={index}
@@ -50,9 +38,9 @@ export default function Testimonials() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.2, duration: 0.5 }}
-              className="bg-white p-8 border border-gray-200 relative shadow-sm"
+              className="bg-white p-8 border border-gray-200 relative shadow-sm text-center"
             >
-              <div className="flex gap-1 mb-6">
+              <div className="flex justify-center gap-1 mb-6">
                 {[...Array(review.rating)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 text-gold-400 fill-gold-400" />
                 ))}

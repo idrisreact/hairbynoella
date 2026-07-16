@@ -21,7 +21,7 @@ export default function Home() {
               <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
                 <div
                   className="w-full h-full bg-cover bg-center"
-                  style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=1998&auto=format&fit=crop')" }}
+                  style={{ backgroundImage: "url('https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86Tl8Y4dDny7H2aWuSYnITrEVQymcpiNZl1oKzk')" }}
                 />
               </div>
               {/* Decorative element */}
@@ -35,16 +35,16 @@ export default function Home() {
               </div>
 
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-light text-gray-900 leading-tight">
-                Crafting confidence
-                <span className="block font-serif italic text-gold-600 mt-2">through artistry</span>
+                Where hair dreams
+                <span className="block font-serif italic text-gold-600 mt-2">come true</span>
               </h2>
 
               <div className="space-y-6 text-gray-600 leading-relaxed">
                 <p className="text-lg font-light">
-                  With over 10 years of experience in the hair industry, Noella has mastered the art of protective styling and natural hair care. Her passion lies in creating styles that not only look stunning but also promote the health of your natural hair.
+                  Noella brings expert hair styling, colouring and treatments together under one roof, working with premium, trusted brands to give every client a result that looks as good as it feels.
                 </p>
                 <p className="text-lg font-light">
-                  Located in the heart of London, our studio offers a private, relaxing environment where you can unwind while we transform your look.
+                  Located in the heart of London, the studio offers a private, relaxing environment — take a deep breath, inhale peace, and exhale happiness while your look is transformed.
                 </p>
               </div>
 
@@ -52,22 +52,42 @@ export default function Home() {
               <div className="grid grid-cols-2 gap-6 pt-4">
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Expertise</div>
-                  <div className="text-xl font-light text-gray-900">Protective Styling</div>
+                  <div className="text-xl font-light text-gray-900">Styling & Colour</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Specialty</div>
-                  <div className="text-xl font-light text-gray-900">Natural Hair Care</div>
+                  <div className="text-xl font-light text-gray-900">Precision Treatments</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Location</div>
                   <div className="text-xl font-light text-gray-900">Central London</div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-sm text-gray-500">Experience</div>
-                  <div className="text-xl font-light text-gray-900">10+ Years</div>
+                  <div className="text-sm text-gray-500">Trusted Brands</div>
+                  <div className="text-xl font-light text-gray-900">Wella · Olaplex · Yuko</div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trusted Brands Strip */}
+      <section className="py-16 bg-white border-y border-gray-100">
+        <div className="container mx-auto px-4 lg:px-8 text-center">
+          <p className="text-gray-500 font-light max-w-2xl mx-auto mb-8">
+            Transforming beauty with premium excellence through top-tier products.
+            Experience the difference of luxurious results and lasting satisfaction.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4">
+            {["Wella", "Olaplex", "Caci White", "Yuko"].map((brand) => (
+              <span
+                key={brand}
+                className="text-2xl font-serif italic text-gray-400 tracking-wide"
+              >
+                {brand}
+              </span>
+            ))}
           </div>
         </div>
       </section>

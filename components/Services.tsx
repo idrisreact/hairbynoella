@@ -1,32 +1,32 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Scissors, Sparkles, Crown, Palette } from "lucide-react";
+import { Scissors, Sparkles, Palette, MessageCircle } from "lucide-react";
 
 const services = [
   {
-    title: "Luxury Braids",
-    description: "Intricate, long-lasting protective styles including knotless, box braids, and twists.",
-    icon: <Crown className="w-8 h-8 text-gold-400" />,
-    price: "From £80",
+    title: "Hair Styling",
+    description: "Unlock your true beauty with expert hair styling — cuts, blow-dries and finishing.",
+    icon: <Scissors className="w-8 h-8 text-gold-400" />,
+    price: "From £35",
   },
   {
-    title: "Premium Weaves",
-    description: "Flawless sew-ins and installations that blend seamlessly with your natural hair.",
-    icon: <Scissors className="w-8 h-8 text-gold-400" />,
-    price: "From £120",
+    title: "Hair Colouring",
+    description: "Transforming tresses, painting dreams — your colour, your canvas.",
+    icon: <Palette className="w-8 h-8 text-gold-400" />,
+    price: "From £55",
   },
   {
     title: "Hair Treatments",
-    description: "Deep conditioning, silk presses, and scalp treatments for healthy, shiny hair.",
+    description: "Nourish your locks and unleash your radiance with restorative treatments.",
     icon: <Sparkles className="w-8 h-8 text-gold-400" />,
-    price: "From £45",
+    price: "From £35",
   },
   {
-    title: "Custom Styling",
-    description: "Bridal hair, special occasions, and editorial styling services.",
-    icon: <Palette className="w-8 h-8 text-gold-400" />,
-    price: "Consultation",
+    title: "Consultation",
+    description: "A one-on-one consultation to plan the perfect look for your hair.",
+    icon: <MessageCircle className="w-8 h-8 text-gold-400" />,
+    price: "By Appointment",
   },
 ];
 

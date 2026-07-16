@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Instagram, Facebook, Mail, MapPin, Phone } from "lucide-react";
+import { Instagram, Facebook, Youtube, Music2, Mail, MapPin, Clock } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -14,16 +14,44 @@ export default function Footer() {
               NOELLA
             </Link>
             <p className="text-dark-500 leading-relaxed mb-6">
-              Elevating your natural beauty with premium hair styling services in the heart of London.
+              Where hair dreams come true — bespoke styling, colour and treatments in the heart of London.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="text-dark-500 hover:text-gold-400 transition-colors">
+              <a
+                href="https://www.instagram.com/hairbynoella/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-dark-500 hover:text-gold-400 transition-colors"
+              >
                 <Instagram size={20} />
               </a>
-              <a href="#" className="text-dark-500 hover:text-gold-400 transition-colors">
+              <a
+                href="https://www.facebook.com/hairbynoella/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-dark-500 hover:text-gold-400 transition-colors"
+              >
                 <Facebook size={20} />
               </a>
-              <a href="#" className="text-dark-500 hover:text-gold-400 transition-colors">
+              <a
+                href="https://www.tiktok.com/@hairbynoella"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-dark-500 hover:text-gold-400 transition-colors"
+                aria-label="TikTok"
+              >
+                <Music2 size={20} />
+              </a>
+              <a
+                href="https://www.youtube.com/@hairbynoella"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-dark-500 hover:text-gold-400 transition-colors"
+                aria-label="YouTube"
+              >
+                <Youtube size={20} />
+              </a>
+              <a href="mailto:hairbynoella123@outlook.com" className="text-dark-500 hover:text-gold-400 transition-colors">
                 <Mail size={20} />
               </a>
             </div>
@@ -52,11 +80,10 @@ export default function Footer() {
           <div>
             <h4 className="text-dark-400 font-bold uppercase tracking-widest mb-6">Services</h4>
             <ul className="space-y-4">
-              <li className="text-dark-500">Box Braids</li>
-              <li className="text-dark-500">Knotless Braids</li>
-              <li className="text-dark-500">Sew-in Weaves</li>
-              <li className="text-dark-500">Silk Press</li>
-              <li className="text-dark-500">Custom Wigs</li>
+              <li className="text-dark-500">Hair Styling</li>
+              <li className="text-dark-500">Hair Colouring</li>
+              <li className="text-dark-500">Hair Treatments</li>
+              <li className="text-dark-500">Consultations</li>
             </ul>
           </div>
 
@@ -66,15 +93,21 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-dark-500">
                 <MapPin className="w-5 h-5 text-gold-400 shrink-0" />
-                <span>123 Fashion Street,<br />London, E1 6PX</span>
-              </li>
-              <li className="flex items-center gap-3 text-dark-500">
-                <Phone className="w-5 h-5 text-gold-400 shrink-0" />
-                <span>+44 20 1234 5678</span>
+                <span>London — location shared upon booking confirmation</span>
               </li>
               <li className="flex items-center gap-3 text-dark-500">
                 <Mail className="w-5 h-5 text-gold-400 shrink-0" />
-                <span>hello@hairbynoella.com</span>
+                <span>hairbynoella123@outlook.com</span>
+              </li>
+              <li className="flex items-start gap-3 text-dark-500">
+                <Clock className="w-5 h-5 text-gold-400 shrink-0" />
+                <span>
+                  Mon–Tue: 10am–6:30pm<br />
+                  Wed: Closed<br />
+                  Thu–Fri: 10am–6:30pm<br />
+                  Sat: Advance bookings<br />
+                  Sun: 11am–5pm
+                </span>
               </li>
             </ul>
           </div>

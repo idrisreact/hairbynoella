@@ -6,62 +6,68 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { X } from "lucide-react";
 
-const categories = ["All", "Braids", "Weaves", "Natural", "Protective"];
+const categories = ["All", "Styling", "Colour", "Treatments"];
 
 const galleryImages = [
   {
     id: 1,
-    url: "https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=1974&auto=format&fit=crop",
-    category: "Braids",
-    title: "Box Braids",
+    url: "https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86TJVm64sD5ar2f0kGTDVNKO1nHqpLhduExZjY5",
+    category: "Styling",
+    title: "Voluminous Blow-Dry Waves",
   },
   {
     id: 2,
-    url: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=1998&auto=format&fit=crop",
-    category: "Natural",
-    title: "Natural Hair Styling",
+    url: "https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86TaUHpPX0Wxf7R509Y4UozQvKqH16MGcTNOmSE",
+    category: "Styling",
+    title: "Soft Wave Blow-Dry",
   },
   {
     id: 3,
-    url: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=2071&auto=format&fit=crop",
-    category: "Braids",
-    title: "Cornrows",
+    url: "https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86TNx6mB8u4JwX5DsGuotjrza9PZCVhOLnb7M8Q",
+    category: "Styling",
+    title: "Layered Waves",
   },
   {
     id: 4,
-    url: "https://images.unsplash.com/photo-1605497788044-5a32c7078486?q=80&w=1974&auto=format&fit=crop",
-    category: "Weaves",
-    title: "Luxury Weave",
+    url: "https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86T1KzH6yctnAe3uhbWcJvw8kX5yQTz0xHjRlVg",
+    category: "Treatments",
+    title: "Sleek Straight Finish",
   },
   {
     id: 5,
-    url: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?q=80&w=2069&auto=format&fit=crop",
-    category: "Protective",
-    title: "Protective Style",
+    url: "https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86TMJSTegLN8pIvLF6OGSgfsC1UidYTzxeAZqJK",
+    category: "Treatments",
+    title: "Glass Hair Straightening",
   },
   {
     id: 6,
-    url: "https://images.unsplash.com/photo-1595475207225-428b62bda831?q=80&w=1974&auto=format&fit=crop",
-    category: "Natural",
-    title: "Afro Styling",
+    url: "https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86Tl8aR2GRy7H2aWuSYnITrEVQymcpiNZl1oKzk",
+    category: "Treatments",
+    title: "Silky Straight Blow-Dry",
   },
   {
     id: 7,
-    url: "https://images.unsplash.com/photo-1522338242992-e1a54906a8da?q=80&w=1974&auto=format&fit=crop",
-    category: "Braids",
-    title: "Senegalese Twists",
+    url: "https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86Tl8Y4dDny7H2aWuSYnITrEVQymcpiNZl1oKzk",
+    category: "Styling",
+    title: "Bouncy Curls",
   },
   {
     id: 8,
-    url: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop",
-    category: "Weaves",
-    title: "Sleek Weave",
+    url: "https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86TQiCP3wHxsyq93FAHnINo7U2kBjLJ0mlXtPiZ",
+    category: "Styling",
+    title: "Effortless Waves",
   },
   {
     id: 9,
-    url: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=1974&auto=format&fit=crop",
-    category: "Protective",
-    title: "Feed-In Braids",
+    url: "https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86T4oN5lzbOF2bzwP9UdYjRXKuh7pi5MeoyGsm3",
+    category: "Treatments",
+    title: "Sleek Blow-Dry Finish",
+  },
+  {
+    id: 10,
+    url: "https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86TAG4rrs37qRZY8B9b7dAuQEfTMIwFjstJDgr2",
+    category: "Colour",
+    title: "Face-Framing Highlights",
   },
 ];
 

@@ -38,9 +38,9 @@ export default function Hero() {
               transition={{ delay: 0.3, duration: 0.6 }}
               className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light text-gray-900 leading-[1.1] tracking-tight"
             >
-              Where beauty
+              Unleash your
               <span className="block font-serif font-normal italic text-gold-600 mt-2">
-                meets artistry
+                ultimate confidence
               </span>
             </motion.h1>
 
@@ -51,35 +51,10 @@ export default function Hero() {
               transition={{ delay: 0.4, duration: 0.6 }}
               className="text-lg text-gray-600 leading-relaxed max-w-lg font-light"
             >
-              Experience bespoke hair styling in the heart of London. Noella
-              crafts personalized looks that celebrate your unique beauty.
+              Experience bespoke hair styling in the heart of London — from
+              precision cuts and colour to nourishing treatments, Noella
+              creates looks that celebrate your natural beauty.
             </motion.p>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="flex items-center gap-12 pt-4"
-            >
-              <div>
-                <div className="text-4xl font-light text-gray-900 mb-1">
-                  16+
-                </div>
-                <div className="text-sm text-gray-500 tracking-wide">
-                  Years Experience
-                </div>
-              </div>
-              <div className="w-px h-12 bg-gray-200" />
-              <div>
-                <div className="text-4xl font-light text-gray-900 mb-1">
-                  5k+
-                </div>
-                <div className="text-sm text-gray-500 tracking-wide">
-                  Happy Clients
-                </div>
-              </div>
-            </motion.div>
 
             {/* CTA Buttons */}
             <motion.div
@@ -151,7 +126,7 @@ export default function Hero() {
                 className="w-full h-full bg-cover bg-center"
                 style={{
                   backgroundImage:
-                    "url('https://hairbynoella.com/wp-content/uploads/2025/06/WhatsApp-Image-2025-06-28-at-19.10.17-684x1024.jpeg')",
+                    "url('https://q36tiv9jtn.ufs.sh/f/dnqy2lKDF86TU5UAKPIpltzNO6FwaA3ykY2xXoJ50RZMBrfI')",
                 }}
               />
               {/* Subtle gradient overlay */}
@@ -163,26 +138,11 @@ export default function Hero() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.6 }}
-              className="absolute left-0 bottom-24 bg-white rounded-2xl shadow-xl p-6 max-w-[200px] z-10"
+              className="absolute left-0 bottom-24 bg-white rounded-2xl shadow-xl p-6 max-w-[220px] z-10"
             >
-              <div className="text-sm text-gray-500 mb-2">
-                Client Satisfaction
-              </div>
-              <div className="flex items-end gap-1 mb-1">
-                <span className="text-3xl font-light text-gray-900">4.9</span>
-                <span className="text-gray-400 text-sm mb-1">/5</span>
-              </div>
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className="w-4 h-4 text-gold-400 fill-current"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                  </svg>
-                ))}
-              </div>
+              <p className="text-gray-700 font-serif italic text-sm leading-relaxed">
+                &ldquo;Take a deep breath. Inhale peace. Exhale happiness.&rdquo;
+              </p>
             </motion.div>
 
             {/* Decorative Element */}
