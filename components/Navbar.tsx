@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -17,13 +15,6 @@ const navLinks = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
-
-  // Memoize session to prevent unnecessary re-renders during navigation
-  const stableSession = useMemo(() => session, [session?.user?.id]);
-
-  console.log("Navbar Session Debug:", { session: stableSession, isPending });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,17 +23,6 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleSignOut = async () => {
-    await authClient.signOut({
-        fetchOptions: {
-            onSuccess: () => {
-                router.push("/");
-                router.refresh();
-            },
-        },
-    });
-  };
 
   return (
     <nav
@@ -66,54 +46,21 @@ export default function Navbar() {
               {link.name}
             </Link>
           ))}
-          
-          {stableSession ? (
-            <div className="flex items-center gap-4 ml-4 border-l border-gray-200 pl-4">
-                {(stableSession.user as any).role === "admin" && (
-                    <Link 
-                        href="/admin"
-                        className="text-sm font-bold text-gold-600 hover:text-gold-700"
-                    >
-                        Admin
-                    </Link>
-                )}
-                <button 
-                    onClick={handleSignOut}
-                    className="text-sm text-dark-400 hover:text-red-500 transition-colors"
-                >
-                    Sign Out
-                </button>
-                <div className="flex items-center gap-2">
-                    {stableSession.user.image ? (
-                        <img
-                            src={stableSession.user.image}
-                            alt={stableSession.user.name || "User"}
-                            className="w-8 h-8 rounded-full object-cover"
-                        />
-                    ) : (
-                        <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center text-gold-600 font-bold text-xs">
-                            {stableSession.user.name?.[0]?.toUpperCase() || <User className="w-4 h-4" />}
-                        </div>
-                    )}
-                    <span className="text-sm font-medium text-dark-500 hidden lg:block">
-                        {stableSession.user.name}
-                    </span>
-                </div>
-            </div>
-          ) : (
-            <Link
-                href="/sign-in"
-                className="ml-4 px-6 py-2 border border-dark-400 text-dark-400 text-sm uppercase tracking-widest hover:bg-dark-400 hover:text-white transition-all rounded-sm"
-            >
-                Sign In
-            </Link>
-          )}
+
+          <Link
+            href="/book"
+            className="ml-4 px-6 py-2 bg-gold-500 text-white text-sm uppercase tracking-widest hover:bg-gold-600 transition-all rounded-sm"
+          >
+            Book Now
+          </Link>
         </div>
 
         {/* Mobile Toggle */}
         <button
           className="md:hidden text-dark-400"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isOpen}
         >
           {isOpen ? <X /> : <Menu />}
         </button>
@@ -140,36 +87,13 @@ export default function Navbar() {
                 </Link>
               ))}
               <hr className="border-gray-100" />
-              {stableSession ? (
-                <>
-                    {(stableSession.user as any).role === "admin" && (
-                        <Link 
-                            href="/admin"
-                            className="text-gold-600 font-bold py-2"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            Admin Dashboard
-                        </Link>
-                    )}
-                    <button 
-                        onClick={() => {
-                            handleSignOut();
-                            setIsOpen(false);
-                        }}
-                        className="text-left text-red-500 py-2"
-                    >
-                        Sign Out
-                    </button>
-                </>
-              ) : (
-                <Link
-                    href="/sign-in"
-                    className="text-dark-400 hover:text-gold-600 py-2"
-                    onClick={() => setIsOpen(false)}
-                >
-                    Sign In
-                </Link>
-              )}
+              <Link
+                href="/book"
+                className="text-gold-600 font-bold py-2"
+                onClick={() => setIsOpen(false)}
+              >
+                Book Now
+              </Link>
             </div>
           </motion.div>
         )}
