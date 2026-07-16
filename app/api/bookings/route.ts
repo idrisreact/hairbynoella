@@ -6,6 +6,7 @@ import { z } from "zod";
 import { and, eq } from "drizzle-orm";
 import { stripe } from "@/lib/stripe";
 import { sendBookingEmails } from "@/lib/email";
+import { generateManageToken } from "@/lib/booking-policy";
 
 function isUniqueViolation(error: unknown): boolean {
     const code =
@@ -127,6 +128,7 @@ export async function POST(req: Request) {
                     amountPaid: depositAmount,
                     currency: 'gbp',
                     paymentDate: new Date(),
+                    manageToken: generateManageToken(),
                 }).returning();
 
                 return inserted[0];
@@ -187,6 +189,7 @@ export async function POST(req: Request) {
                     depositPaid: depositAmount,
                     notes,
                     hairPhotoUrl,
+                    manageToken: booking.manageToken,
                 });
             } catch (emailError) {
                 console.error(

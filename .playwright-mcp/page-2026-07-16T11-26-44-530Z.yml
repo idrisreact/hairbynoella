@@ -1,0 +1,101 @@
+- generic [active] [ref=f1e1]:
+  - main [ref=f1e2]:
+    - navigation [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - link "Hair by Noella" [ref=f1e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f1e6]:
+          - link "Home" [ref=f1e7] [cursor=pointer]:
+            - /url: /
+          - link "Services" [ref=f1e8] [cursor=pointer]:
+            - /url: /services
+          - link "Gallery" [ref=f1e9] [cursor=pointer]:
+            - /url: /gallery
+          - link "Contact" [ref=f1e10] [cursor=pointer]:
+            - /url: /contact
+          - link "Book Now" [ref=f1e11] [cursor=pointer]:
+            - /url: /book
+    - generic [ref=f1e14]:
+      - heading "Your Booking" [level=1] [ref=f1e15]
+      - paragraph [ref=f1e16]: "Reference: TEST-BOO"
+      - generic [ref=f1e18]:
+        - generic [ref=f1e19]:
+          - term [ref=f1e20]: Service
+          - definition [ref=f1e21]: Wash, Cut & Blow-Dry
+        - generic [ref=f1e22]:
+          - term [ref=f1e23]: Date & time
+          - definition [ref=f1e24]: Thursday, 16 July 2026 at 2:22 pm
+        - generic [ref=f1e25]:
+          - term [ref=f1e26]: Deposit paid
+          - definition [ref=f1e27]: £20.00
+        - generic [ref=f1e28]:
+          - term [ref=f1e29]: Status
+          - definition [ref=f1e30]: confirmed
+      - generic [ref=f1e31]:
+        - paragraph [ref=f1e34]: Your appointment is less than 24 hours away
+        - paragraph [ref=f1e35]:
+          - text: Cancellations this close to the appointment can't be made online — please contact us directly at
+          - link "hairbynoella123@outlook.com" [ref=f1e36] [cursor=pointer]:
+            - /url: mailto:hairbynoella123@outlook.com
+          - text: .
+      - generic [ref=f1e37]:
+        - link "Return Home" [ref=f1e38] [cursor=pointer]:
+          - /url: /
+        - link "View Services" [ref=f1e39] [cursor=pointer]:
+          - /url: /services
+    - generic [ref=f1e41]:
+      - generic [ref=f1e42]:
+        - generic [ref=f1e43]:
+          - link "NOELLA" [ref=f1e44] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=f1e45]: Where hair dreams come true — bespoke styling, colour and treatments in the heart of London.
+          - generic [ref=f1e46]:
+            - link [ref=f1e47] [cursor=pointer]:
+              - /url: https://www.instagram.com/hairbynoella/
+            - link [ref=f1e51] [cursor=pointer]:
+              - /url: https://www.facebook.com/hairbynoella/
+            - link "TikTok" [ref=f1e54] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@hairbynoella
+            - link "YouTube" [ref=f1e58] [cursor=pointer]:
+              - /url: https://www.youtube.com/@hairbynoella
+            - link [ref=f1e62] [cursor=pointer]:
+              - /url: mailto:hairbynoella123@outlook.com
+        - generic [ref=f1e66]:
+          - heading "Explore" [level=4] [ref=f1e67]
+          - list [ref=f1e68]:
+            - listitem [ref=f1e69]:
+              - link "Home" [ref=f1e70] [cursor=pointer]:
+                - /url: "#home"
+            - listitem [ref=f1e71]:
+              - link "Services" [ref=f1e72] [cursor=pointer]:
+                - /url: "#services"
+            - listitem [ref=f1e73]:
+              - link "About Us" [ref=f1e74] [cursor=pointer]:
+                - /url: "#about"
+            - listitem [ref=f1e75]:
+              - link "Book Now" [ref=f1e76] [cursor=pointer]:
+                - /url: "#book"
+        - generic [ref=f1e77]:
+          - heading "Services" [level=4] [ref=f1e78]
+          - list [ref=f1e79]:
+            - listitem [ref=f1e80]: Hair Styling
+            - listitem [ref=f1e81]: Hair Colouring
+            - listitem [ref=f1e82]: Hair Treatments
+            - listitem [ref=f1e83]: Consultations
+        - generic [ref=f1e84]:
+          - heading "Contact" [level=4] [ref=f1e85]
+          - list [ref=f1e86]:
+            - listitem [ref=f1e87]:
+              - generic [ref=f1e91]: London — location shared upon booking confirmation
+            - listitem [ref=f1e92]:
+              - generic [ref=f1e96]: hairbynoella123@outlook.com
+            - listitem [ref=f1e97]:
+              - generic [ref=f1e101]: "Mon–Tue: 10am–6:30pmWed: ClosedThu–Fri: 10am–6:30pmSat: Advance bookingsSun: 11am–5pm"
+      - generic [ref=f1e102]:
+        - paragraph [ref=f1e103]: © 2026 Hair by Noella. All rights reserved.
+        - generic [ref=f1e104]:
+          - link "Privacy Policy" [ref=f1e105] [cursor=pointer]:
+            - /url: "#"
+          - link "Terms of Service" [ref=f1e106] [cursor=pointer]:
+            - /url: "#"
+  - alert [ref=f1e107]

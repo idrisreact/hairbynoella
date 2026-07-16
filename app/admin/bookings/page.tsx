@@ -130,6 +130,7 @@ export default async function AdminBookingsPage({
         amountPaid: bookings.amountPaid,
         amountRefunded: bookings.amountRefunded,
         stripePaymentIntentId: bookings.stripePaymentIntentId,
+        hairPhotoUrl: bookings.hairPhotoUrl,
       })
       .from(bookings)
       .leftJoin(services, eq(bookings.serviceId, services.id))
@@ -172,6 +173,7 @@ export default async function AdminBookingsPage({
     paymentStatus: b.paymentStatus,
     amountPaid: b.amountPaid,
     amountRefunded: b.amountRefunded,
+    hairPhotoUrl: b.hairPhotoUrl,
   }));
 
   // Build action slots as server-rendered JSX keyed by booking ID

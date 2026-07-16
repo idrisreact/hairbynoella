@@ -1,8 +1,16 @@
 "use client";
 
+import Image from "next/image";
 import { format } from "date-fns";
 import { Calendar } from "lucide-react";
 import { formatPrice } from "@/lib/pricing";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Booking {
   id: string;
@@ -15,6 +23,7 @@ interface Booking {
   paymentStatus: string | null;
   amountPaid: number | null;
   amountRefunded: number | null;
+  hairPhotoUrl: string | null;
 }
 
 interface BookingsTableProps {
@@ -49,12 +58,15 @@ export default function BookingsTable({ bookings, actionSlots, hasFilters = fals
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <caption className="sr-only">
-              Bookings with customer, service, date, status, payment and actions
+              Bookings with customer, hair photo, service, date, status, payment and actions
             </caption>
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50/50">
                 <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Customer
+                </th>
+                <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Photo
                 </th>
                 <th scope="col" className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Service
@@ -93,6 +105,12 @@ export default function BookingsTable({ bookings, actionSlots, hasFilters = fals
                         <p className="text-xs text-gray-500">{booking.customerEmail}</p>
                       </div>
                     </div>
+                  </td>
+                  <td className="px-5 py-4">
+                    <HairPhotoCell
+                      url={booking.hairPhotoUrl}
+                      customerName={booking.customerName}
+                    />
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-sm text-gray-900">{booking.serviceName}</p>
@@ -151,11 +169,19 @@ export default function BookingsTable({ bookings, actionSlots, hasFilters = fals
 
             {/* Details row */}
             <div className="flex items-center justify-between text-sm">
-              <div>
-                <p className="text-gray-900">{booking.serviceName}</p>
-                <p className="text-xs text-gray-500">
-                  {format(new Date(booking.date), "MMM d, yyyy · h:mm a")}
-                </p>
+              <div className="flex items-center gap-3">
+                {booking.hairPhotoUrl && (
+                  <HairPhotoCell
+                    url={booking.hairPhotoUrl}
+                    customerName={booking.customerName}
+                  />
+                )}
+                <div>
+                  <p className="text-gray-900">{booking.serviceName}</p>
+                  <p className="text-xs text-gray-500">
+                    {format(new Date(booking.date), "MMM d, yyyy · h:mm a")}
+                  </p>
+                </div>
               </div>
               <PaymentInfo booking={booking} />
             </div>
@@ -168,6 +194,44 @@ export default function BookingsTable({ bookings, actionSlots, hasFilters = fals
         ))}
       </div>
     </div>
+  );
+}
+
+function HairPhotoCell({
+  url,
+  customerName,
+}: {
+  url: string | null;
+  customerName: string;
+}) {
+  if (!url) return <span className="text-gray-300">—</span>;
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          aria-label={`View ${customerName}'s hair photo`}
+          className="relative w-10 h-10 rounded-md overflow-hidden shrink-0 ring-1 ring-gray-200 hover:ring-gold-400 transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+        >
+          <Image src={url} alt="" fill sizes="40px" className="object-cover" />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Hair photo — {customerName}</DialogTitle>
+        </DialogHeader>
+        <div className="relative w-full h-[60vh]">
+          <Image
+            src={url}
+            alt={`${customerName}'s hair photo`}
+            fill
+            sizes="(max-width: 768px) 100vw, 672px"
+            className="object-contain"
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

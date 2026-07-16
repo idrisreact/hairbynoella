@@ -1,0 +1,126 @@
+- generic:
+  - main:
+    - navigation:
+      - generic:
+        - link:
+          - /url: /
+          - text: Hair by Noella
+        - generic:
+          - link:
+            - /url: /
+            - text: Home
+          - link:
+            - /url: /services
+            - text: Services
+          - link:
+            - /url: /gallery
+            - text: Gallery
+          - link:
+            - /url: /contact
+            - text: Contact
+          - link:
+            - /url: /book
+            - text: Book Now
+    - generic:
+      - generic:
+        - generic:
+          - heading [level=1]: Your Booking
+          - paragraph: "Reference: TEST-BOO"
+          - generic:
+            - generic:
+              - generic:
+                - term: Service
+                - definition: Wash & Blow-Dry
+              - generic:
+                - term: Date & time
+                - definition: Sunday, 19 July 2026 at 12:24 pm
+              - generic:
+                - term: Deposit paid
+                - definition: £20.00
+              - generic:
+                - term: Status
+                - definition: confirmed
+          - generic:
+            - generic:
+              - paragraph: Need to cancel? Your £20.00 deposit will be refunded in full.
+              - button [expanded]: Cancel booking
+          - generic:
+            - link:
+              - /url: /
+              - text: Return Home
+            - link:
+              - /url: /services
+              - text: View Services
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: /
+              - text: NOELLA
+            - paragraph: Where hair dreams come true — bespoke styling, colour and treatments in the heart of London.
+            - generic:
+              - link:
+                - /url: https://www.instagram.com/hairbynoella/
+              - link:
+                - /url: https://www.facebook.com/hairbynoella/
+              - link:
+                - /url: https://www.tiktok.com/@hairbynoella
+              - link:
+                - /url: https://www.youtube.com/@hairbynoella
+              - link:
+                - /url: mailto:hairbynoella123@outlook.com
+          - generic:
+            - heading [level=4]: Explore
+            - list:
+              - listitem:
+                - link:
+                  - /url: "#home"
+                  - text: Home
+              - listitem:
+                - link:
+                  - /url: "#services"
+                  - text: Services
+              - listitem:
+                - link:
+                  - /url: "#about"
+                  - text: About Us
+              - listitem:
+                - link:
+                  - /url: "#book"
+                  - text: Book Now
+          - generic:
+            - heading [level=4]: Services
+            - list:
+              - listitem: Hair Styling
+              - listitem: Hair Colouring
+              - listitem: Hair Treatments
+              - listitem: Consultations
+          - generic:
+            - heading [level=4]: Contact
+            - list:
+              - listitem:
+                - generic: London — location shared upon booking confirmation
+              - listitem:
+                - generic: hairbynoella123@outlook.com
+              - listitem:
+                - generic: "Mon–Tue: 10am–6:30pm Wed: Closed Thu–Fri: 10am–6:30pm Sat: Advance bookings Sun: 11am–5pm"
+        - generic:
+          - paragraph: © 2026 Hair by Noella. All rights reserved.
+          - generic:
+            - link:
+              - /url: "#"
+              - text: Privacy Policy
+            - link:
+              - /url: "#"
+              - text: Terms of Service
+  - button "Open Next.js Dev Tools" [ref=e110] [cursor=pointer]
+  - alert
+  - dialog [ref=e116]:
+    - generic [ref=e117]:
+      - heading "Cancel this booking?" [level=2] [ref=e118]
+      - paragraph [ref=e119]: Your £20.00 deposit will be refunded to your original payment method. This cannot be undone.
+    - generic [ref=e120]:
+      - button "Keep booking" [active] [ref=e121]
+      - button "Yes, cancel booking" [ref=e122]
+    - button "Close" [ref=e123]

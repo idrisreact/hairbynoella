@@ -91,6 +91,8 @@ export const bookings = pgTable('bookings', {
     refundReason: text('refund_reason'),
     paymentDate: timestamp('payment_date'),
     refundDate: timestamp('refund_date'),
+    // Secret credential for the customer's manage/cancel link (null on old bookings)
+    manageToken: text('manage_token').unique(),
     archivedAt: timestamp('archived_at'),
     createdAt: timestamp('created_at').defaultNow(),
 });
