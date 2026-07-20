@@ -6,9 +6,16 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+/**
+ * Admins may type either their username ("noella") or their email address
+ * into the single identifier field. An "@" is the only thing that
+ * distinguishes the two, since usernames are alphanumeric + underscores.
+ */
+const looksLikeEmail = (identifier: string) => identifier.includes("@");
+
 export function SignInForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,22 +25,23 @@ export function SignInForm() {
     setIsLoading(true);
     setError(null);
 
-    await authClient.signIn.email({
-      email,
-      password,
-    }, {
-        onRequest: () => {
-            setIsLoading(true);
-        },
-        onSuccess: () => {
-            router.push("/admin");
-            router.refresh();
-        },
-        onError: (ctx) => {
-            setError(ctx.error.message);
-            setIsLoading(false);
-        }
-    });
+    const trimmed = identifier.trim();
+    const handlers = {
+      onSuccess: () => {
+        router.push("/admin");
+        router.refresh();
+      },
+      onError: (ctx: { error: { message?: string } }) => {
+        setError(ctx.error.message ?? "Sign in failed. Please try again.");
+        setIsLoading(false);
+      },
+    };
+
+    if (looksLikeEmail(trimmed)) {
+      await authClient.signIn.email({ email: trimmed, password }, handlers);
+    } else {
+      await authClient.signIn.username({ username: trimmed, password }, handlers);
+    }
   };
 
   return (
@@ -44,19 +52,27 @@ export function SignInForm() {
       </p>
 
       {error && (
-        <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
+        <div role="alert" className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="admin-email" className="text-sm font-medium text-dark-500">Email</label>
+          <label htmlFor="admin-identifier" className="text-sm font-medium text-dark-500">
+            Username or email
+          </label>
           <input
-            id="admin-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="admin-identifier"
+            name="identifier"
+            type="text"
+            autoComplete="username"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            placeholder="noella"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
             required
           />
@@ -65,7 +81,9 @@ export function SignInForm() {
           <label htmlFor="admin-password" className="text-sm font-medium text-dark-500">Password</label>
           <input
             id="admin-password"
+            name="password"
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-400"
@@ -79,37 +97,6 @@ export function SignInForm() {
             disabled={isLoading}
         >
           {isLoading ? <Loader2 className="animate-spin w-4 h-4" /> : "Sign In"}
-        </Button>
-
-        <div className="relative my-4">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-2 text-dark-500">Or continue with</span>
-          </div>
-        </div>
-
-        <Button
-            type="button"
-            variant="outline"
-            className="w-full py-3"
-            onClick={async () => {
-                setError(null);
-                await authClient.signIn.social({
-                    provider: "google",
-                    callbackURL: "/admin",
-                }, {
-                    onError: (ctx) => {
-                        setError(ctx.error.message);
-                    }
-                });
-            }}
-        >
-            <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-              <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
-            </svg>
-            Google
         </Button>
       </form>
     </div>

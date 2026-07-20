@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { username } from "better-auth/plugins";
 import { db } from "./db";
 import * as schema from "./schema";
 
@@ -32,15 +33,11 @@ export const auth = betterAuth({
             verification: schema.verification,
         }
     }),
-    socialProviders: {
-        google: {
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-            // Existing admins sign in with Google; new Google accounts
-            // must not be auto-created now that registration is closed.
-            disableSignUp: true,
-        },
-    },
+    // Admins sign in with a username + password only. Google sign-in was
+    // removed deliberately: the google-only admin account
+    // (hairbynoella88@gmail.com) is superseded by the credential account
+    // that owns the "noella" username.
+    plugins: [username()],
     trustedOrigins: [baseURL],
     advanced: {
         cookiePrefix: "better-auth",

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Instagram, Facebook, Youtube, Music2, Mail, MapPin, Clock } from "lucide-react";
+import { Instagram, Facebook, Youtube, Music2, Mail, MapPin, Clock, Lock } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -118,7 +118,13 @@ export default function Footer() {
           <div className="flex gap-6">
             <a href="#" className="hover:text-gold-400 transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-gold-400 transition-colors">Terms of Service</a>
-            <Link href="/sign-in" className="hover:text-gold-400 transition-colors">Staff Login</Link>
+            <Link
+              href="/sign-in"
+              className="inline-flex items-center gap-2 px-4 py-2 border border-dark-500/40 rounded-sm hover:border-gold-400 hover:text-gold-400 transition-colors"
+            >
+              <Lock className="w-3.5 h-3.5" aria-hidden="true" />
+              Admin Login
+            </Link>
           </div>
         </div>
       </div>

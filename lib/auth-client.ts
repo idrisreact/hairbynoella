@@ -1,4 +1,5 @@
 import { createAuthClient } from "better-auth/react";
+import { usernameClient } from "better-auth/client/plugins";
 
 // function to get base url
 const getBaseURL = () => {
@@ -9,5 +10,6 @@ const getBaseURL = () => {
 };
 
 export const authClient = createAuthClient({
-    baseURL: getBaseURL()
+    baseURL: getBaseURL(),
+    plugins: [usernameClient()],
 });

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/components/providers/QueryProvider";
@@ -81,6 +82,7 @@ export default function RootLayout({
         className={`${playfair.variable} ${inter.variable} antialiased bg-dark-900 text-foreground`}
       >
         <QueryProvider>{children}</QueryProvider>
+        <Analytics />
       </body>
     </html>
   );
