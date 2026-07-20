@@ -9,6 +9,11 @@ export const user = pgTable("user", {
     emailVerified: boolean('emailVerified').notNull(),
     image: text('image'),
     role: text('role').default('user'),
+    // Better Auth username plugin: admins sign in with a username (e.g.
+    // "noella") instead of an email. `username` is the normalised
+    // (lowercased) lookup key; `displayUsername` keeps the original casing.
+    username: text('username').unique(),
+    displayUsername: text('displayUsername'),
     createdAt: timestamp('createdAt').notNull(),
     updatedAt: timestamp('updatedAt').notNull()
 });

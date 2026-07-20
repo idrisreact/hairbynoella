@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -48,8 +48,16 @@ export default function Navbar() {
           ))}
 
           <Link
+            href="/sign-in"
+            className="ml-4 inline-flex items-center gap-2 px-4 py-2 border border-dark-400/30 text-dark-400 text-sm uppercase tracking-widest hover:border-gold-600 hover:text-gold-600 transition-all rounded-sm"
+          >
+            <Lock className="w-3.5 h-3.5" aria-hidden="true" />
+            Admin
+          </Link>
+
+          <Link
             href="/book"
-            className="ml-4 px-6 py-2 bg-gold-500 text-white text-sm uppercase tracking-widest hover:bg-gold-600 transition-all rounded-sm"
+            className="px-6 py-2 bg-gold-500 text-white text-sm uppercase tracking-widest hover:bg-gold-600 transition-all rounded-sm"
           >
             Book Now
           </Link>
@@ -93,6 +101,14 @@ export default function Navbar() {
                 onClick={() => setIsOpen(false)}
               >
                 Book Now
+              </Link>
+              <Link
+                href="/sign-in"
+                className="inline-flex items-center gap-2 text-dark-400 hover:text-gold-600 py-2"
+                onClick={() => setIsOpen(false)}
+              >
+                <Lock className="w-4 h-4" aria-hidden="true" />
+                Admin Login
               </Link>
             </div>
           </motion.div>
