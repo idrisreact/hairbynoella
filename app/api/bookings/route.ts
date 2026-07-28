@@ -22,7 +22,7 @@ const bookingSchema = z.object({
     customerName: z.string(),
     customerEmail: z.string().email(),
     customerPhone: z.string(),
-    hairPhotoUrl: z.string().optional(),
+    hairPhotoUrl: z.string().url("A hair photo is required"),
     notes: z.string().optional(),
     stripePaymentIntentId: z.string().min(1, "Payment intent ID is required"),
 });

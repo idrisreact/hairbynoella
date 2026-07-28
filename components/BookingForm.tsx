@@ -25,7 +25,9 @@ const bookingSchema = z.object({
   customerName: z.string().min(2, "Name is required"),
   customerEmail: z.string().email("Invalid email address"),
   customerPhone: z.string().min(10, "Valid phone number is required"),
-  hairPhotoUrl: z.string().optional(),
+  hairPhotoUrl: z
+    .string()
+    .url("Please upload a photo of your current hair"),
   notes: z.string().optional(),
 });
 
@@ -124,7 +126,7 @@ export default function BookingForm() {
       {
         ...formData,
         stripePaymentIntentId: completedPaymentIntentId,
-      } as any,
+      },
       {
         onSuccess: () => {
           router.push('/book/success');
@@ -369,13 +371,18 @@ export default function BookingForm() {
         </div>
 
         <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Current Hair Photo (Optional)</label>
+            <label className="text-sm font-medium text-gray-700">
+                Current Hair Photo <span className="text-red-500">*</span>
+            </label>
+            <p className="text-xs text-gray-500">
+                A clear photo of your current hair is required so Noella can prepare for your appointment.
+            </p>
+            <input type="hidden" {...register("hairPhotoUrl")} />
             <UploadButton
                 endpoint="hairPhoto"
                 onClientUploadComplete={(res) => {
-                    console.log("Files: ", res);
                     if (res && res[0]) {
-                        setValue("hairPhotoUrl", res[0].url);
+                        setValue("hairPhotoUrl", res[0].ufsUrl, { shouldValidate: true });
                     }
                 }}
                 onUploadError={(error: Error) => {
@@ -386,10 +393,22 @@ export default function BookingForm() {
                     allowedContent: "text-gray-500"
                 }}
             />
-            {watch("hairPhotoUrl") && (
-                <p className="text-sm text-green-600 mt-2">
-                    Photo uploaded successfully!
-                </p>
+            {watch("hairPhotoUrl") ? (
+                <div className="mt-2 flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={watch("hairPhotoUrl")}
+                        alt="Your uploaded hair photo"
+                        className="h-16 w-16 rounded-md object-cover border border-gray-200"
+                    />
+                    <p className="text-sm text-green-600 flex items-center gap-1">
+                        <Check className="h-4 w-4" /> Photo uploaded
+                    </p>
+                </div>
+            ) : (
+                errors.hairPhotoUrl && (
+                    <p className="text-red-500 text-xs">{errors.hairPhotoUrl.message}</p>
+                )
             )}
         </div>
       </div>

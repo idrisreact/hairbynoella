@@ -22,10 +22,15 @@ const resend = process.env.RESEND_API_KEY
 const FROM_ADDRESS =
     process.env.EMAIL_FROM ?? "Hair by Noella <onboarding@resend.dev>";
 
+// The salon's own inbox. New-booking alerts and customer replies default
+// here so the salon is *always* notified of a booking, even if a deployment
+// forgets to set ADMIN_NOTIFICATION_EMAIL / EMAIL_REPLY_TO. Override via env.
+const SALON_INBOX = "hairbynoella123@outlook.com";
+
 // Customer replies go here (e.g. the salon's Outlook inbox). Sending *from*
 // a mailbox provider address like @outlook.com is impossible — the domain
 // can't be DNS-verified — so reply-to is how that inbox stays in the loop.
-const REPLY_TO = process.env.EMAIL_REPLY_TO;
+const REPLY_TO = process.env.EMAIL_REPLY_TO ?? SALON_INBOX;
 
 const BASE_URL =
     process.env.NEXT_PUBLIC_APP_URL ??
@@ -202,6 +207,62 @@ function adminNotificationHtml(data: BookingEmailData): string {
 }
 
 /**
+ * Plain-text alternative for the confirmation email. Sending a text part
+ * alongside the HTML (multipart/alternative) is a real deliverability win:
+ * HTML-only messages score worse with spam filters, Outlook included.
+ */
+function confirmationText(data: BookingEmailData): string {
+    const balanceDue = data.fullServicePrice - data.depositPaid;
+    const lines = [
+        `Hi ${data.customerName},`,
+        ``,
+        `Thank you for booking with Hair by Noella! We've received your deposit and your appointment is confirmed.`,
+        ``,
+        `Booking reference: ${bookingReference(data.bookingId)}`,
+        `Service: ${data.serviceName}`,
+        `Date & time: ${formatAppointmentTime(data.appointmentTime)}`,
+        ...(data.notes ? [`Your notes: ${data.notes}`] : []),
+        ``,
+        `Payment summary`,
+        `  Service price: ${formatPrice(data.fullServicePrice)}`,
+        `  Deposit paid: -${formatPrice(data.depositPaid)}`,
+        `  Balance due at your appointment: ${formatPrice(balanceDue)}`,
+        ``,
+        ...(data.manageToken
+            ? [
+                  `Manage your booking: ${manageUrl(data.manageToken)}`,
+                  ``,
+                  `Need to cancel? Use the link above to cancel free of charge up to ${AUTO_REFUND_CUTOFF_HOURS} hours before your appointment; your deposit will be refunded. Between ${SELF_CANCEL_CUTOFF_HOURS} and ${AUTO_REFUND_CUTOFF_HOURS} hours before, the deposit is non-refundable. Within ${SELF_CANCEL_CUTOFF_HOURS} hours, please contact us directly.`,
+              ]
+            : [
+                  `Need to make a change? If you need to reschedule or cancel, please contact us at least 24 hours before your appointment.`,
+              ]),
+        ``,
+        `This is an automated confirmation from Hair by Noella.`,
+    ];
+    return lines.join("\n");
+}
+
+/** Plain-text alternative for the salon's new-booking alert. */
+function adminNotificationText(data: BookingEmailData): string {
+    const lines = [
+        `New booking received`,
+        ``,
+        `Booking reference: ${bookingReference(data.bookingId)}`,
+        `Customer: ${data.customerName}`,
+        `Email: ${data.customerEmail}`,
+        `Phone: ${data.customerPhone ?? "Not provided"}`,
+        `Service: ${data.serviceName}`,
+        `Date & time: ${formatAppointmentTime(data.appointmentTime)}`,
+        `Deposit paid: ${formatPrice(data.depositPaid)}`,
+        `Balance due: ${formatPrice(data.fullServicePrice - data.depositPaid)}`,
+        ...(data.notes ? [`Notes: ${data.notes}`] : []),
+        ...(data.hairPhotoUrl ? [``, `Customer's hair photo: ${data.hairPhotoUrl}`] : []),
+    ];
+    return lines.join("\n");
+}
+
+/**
  * Sends the customer confirmation (and, if ADMIN_NOTIFICATION_EMAIL is set,
  * a new-booking alert to the salon). Never throws.
  */
@@ -220,6 +281,7 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
             replyTo: REPLY_TO,
             subject: `Booking confirmed — ${data.serviceName} on ${formatAppointmentTime(data.appointmentTime)}`,
             html: confirmationHtml(data),
+            text: confirmationText(data),
         });
         if (error) throw error;
         console.log(`Confirmation email sent for booking ${data.bookingId}`);
@@ -230,8 +292,7 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
         );
     }
 
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
-    if (!adminEmail) return;
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL ?? SALON_INBOX;
 
     try {
         const { error } = await resend.emails.send({
@@ -241,6 +302,7 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
             replyTo: data.customerEmail,
             subject: `New booking: ${data.customerName} — ${data.serviceName}`,
             html: adminNotificationHtml(data),
+            text: adminNotificationText(data),
         });
         if (error) throw error;
     } catch (error) {
@@ -368,6 +430,50 @@ function adminCancellationHtml(data: CancellationEmailData): string {
 </div>`;
 }
 
+/** Plain-text alternative for the customer cancellation email. */
+function cancellationText(data: CancellationEmailData): string {
+    const lines = [
+        `Hi ${data.customerName},`,
+        ``,
+        `This confirms that your appointment has been cancelled.`,
+        ``,
+        `Booking reference: ${bookingReference(data.bookingId)}`,
+        `Service: ${data.serviceName}`,
+        `Date & time: ${formatAppointmentTime(data.appointmentTime)}`,
+        ``,
+        refundMessage(data).replace(/&ndash;/g, "–").replace(/&mdash;/g, "—"),
+        ``,
+        `We'd love to see you another time — you can book a new appointment on our website whenever you're ready.`,
+        ``,
+        `This is an automated message from Hair by Noella.`,
+    ];
+    return lines.join("\n");
+}
+
+/** Plain-text alternative for the salon's cancellation alert. */
+function adminCancellationText(data: CancellationEmailData): string {
+    const refund =
+        data.refundOutcome === "refunded"
+            ? `Refunded ${formatPrice(data.refundAmount ?? data.depositPaid)} automatically`
+            : data.refundOutcome === "deposit_kept"
+            ? "Deposit kept (cancelled within the refund cutoff)"
+            : "REFUND FAILED — please refund manually from the Stripe dashboard";
+
+    const lines = [
+        `Booking cancelled by customer`,
+        `The slot has been freed and is bookable again.`,
+        ``,
+        `Booking reference: ${bookingReference(data.bookingId)}`,
+        `Customer: ${data.customerName}`,
+        `Email: ${data.customerEmail}`,
+        `Service: ${data.serviceName}`,
+        `Date & time: ${formatAppointmentTime(data.appointmentTime)}`,
+        `Deposit paid: ${formatPrice(data.depositPaid)}`,
+        `Refund: ${refund}`,
+    ];
+    return lines.join("\n");
+}
+
 /**
  * Sends the customer a cancellation confirmation (and, if
  * ADMIN_NOTIFICATION_EMAIL is set, an alert to the salon). Never throws.
@@ -389,6 +495,7 @@ export async function sendCancellationEmails(
             replyTo: REPLY_TO,
             subject: `Booking cancelled — ${data.serviceName} on ${formatAppointmentTime(data.appointmentTime)}`,
             html: cancellationHtml(data),
+            text: cancellationText(data),
         });
         if (error) throw error;
         console.log(`Cancellation email sent for booking ${data.bookingId}`);
@@ -399,8 +506,7 @@ export async function sendCancellationEmails(
         );
     }
 
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
-    if (!adminEmail) return;
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL ?? SALON_INBOX;
 
     try {
         const { error } = await resend.emails.send({
@@ -410,6 +516,7 @@ export async function sendCancellationEmails(
             replyTo: data.customerEmail,
             subject: `Booking cancelled by customer: ${data.customerName} — ${data.serviceName}`,
             html: adminCancellationHtml(data),
+            text: adminCancellationText(data),
         });
         if (error) throw error;
     } catch (error) {
