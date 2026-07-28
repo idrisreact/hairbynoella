@@ -26,6 +26,8 @@ interface BookingData {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  hairPhotoUrl: string;
+  stripePaymentIntentId?: string;
   notes?: string;
 }
 
