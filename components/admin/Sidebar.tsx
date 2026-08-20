@@ -8,7 +8,6 @@ import {
   Scissors,
   DollarSign,
   Clock,
-  Settings,
   LogOut,
   X,
 } from "lucide-react";
@@ -47,11 +46,6 @@ const navItems = [
     href: "/admin/availability",
     label: "Availability",
     icon: Clock,
-  },
-  {
-    href: "/admin/settings",
-    label: "Settings",
-    icon: Settings,
   },
 ];
 
@@ -131,7 +125,12 @@ export default function Sidebar({ userName, isOpen, onClose }: SidebarProps) {
                       : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
                   }`}
               >
-                <Icon className={`w-[18px] h-[18px] ${active ? "text-gold-600" : "text-gray-500"}`} aria-hidden="true" />
+                <Icon
+                  className={`w-[18px] h-[18px] ${
+                    active ? "text-gold-600" : "text-gray-500"
+                  }`}
+                  aria-hidden="true"
+                />
                 {item.label}
               </Link>
             );
@@ -145,7 +144,9 @@ export default function Sidebar({ userName, isOpen, onClose }: SidebarProps) {
               {userName?.[0]?.toUpperCase() || "A"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {userName}
+              </p>
               <p className="text-xs text-gray-600">Admin</p>
             </div>
           </div>

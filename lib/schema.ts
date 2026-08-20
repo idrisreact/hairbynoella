@@ -102,6 +102,17 @@ export const bookings = pgTable('bookings', {
     createdAt: timestamp('created_at').defaultNow(),
 });
 
+// Portfolio images shown on /gallery, managed from /admin/gallery
+export const galleryImages = pgTable('gallery_images', {
+    id: text('id').primaryKey(),
+    url: text('url').notNull(),
+    // UploadThing file key — needed to delete the file from storage, not just the row
+    fileKey: text('file_key').notNull(),
+    title: text('title').notNull(),
+    category: text('category').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
 // Webhook events table for idempotency
 export const webhookEvents = pgTable('webhook_events', {
     id: text('id').primaryKey(), // Stripe event ID
