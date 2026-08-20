@@ -53,6 +53,7 @@ The application has two main domain areas:
 - `services` - Hair services with name, category, price, duration, description
 - `availabilitySlots` - Time slots with startTime and isBooked flag
 - `bookings` - Customer bookings linking users, services, slots with customer contact info
+- `galleryImages` - Portfolio photos for `/gallery` (url, UploadThing `fileKey`, title, category)
 
 ### Key Architecture Patterns
 
@@ -115,6 +116,17 @@ ADMIN_NOTIFICATION_EMAIL=<salon-inbox>     # optional; sends a new-booking alert
 - Confirmation/invoice email (and optional admin alert) is sent after booking creation; email failure never fails a booking
 - Slot booking is atomic: slot marked as booked when booking created
 - Date handling: API accepts both string and Date objects, converts to Date internally
+
+### Gallery
+- `/gallery` renders from the `gallery_images` table; `/admin/gallery` is the CMS for it
+- Uploads go through the `galleryImage` UploadThing endpoint (`app/api/uploadthing/core.ts`),
+  which is admin-gated in `.middleware()` and writes the DB row in `.onUploadComplete()` —
+  the `hairPhoto` endpoint next to it stays public for guest bookings
+- Deleting an image removes the row *and* the file from UploadThing storage (via `utapi`,
+  `lib/uploadthing-server.ts`), which is why `fileKey` is stored alongside the URL
+- Categories live in `lib/gallery.ts`; add one there and it appears in the admin picker
+  and (once a photo uses it) in the public filter bar
+- `npx tsx scripts/seed-gallery.ts` created the table and backfilled the original ten photos
 
 ### Database Hosting
 - PostgreSQL is hosted on Neon (serverless); there is no local container
