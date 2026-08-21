@@ -13,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface SidebarProps {
   userName: string;
@@ -59,8 +59,13 @@ export default function Sidebar({ userName, isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Close sidebar on route change (mobile)
+  // Fallback for navigations that don't come from a tap (browser back/forward).
+  // Link taps close the drawer directly via onClick, which also covers taps on
+  // the route you're already on -- those never change `pathname`.
+  const previousPathname = useRef(pathname);
   useEffect(() => {
+    if (previousPathname.current === pathname) return;
+    previousPathname.current = pathname;
     onClose();
   }, [pathname]);
 
@@ -98,6 +103,7 @@ export default function Sidebar({ userName, isOpen, onClose }: SidebarProps) {
         <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
           <Link
             href="/admin"
+            onClick={onClose}
             className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
           >
             <span className="block text-xl font-serif font-bold text-gold-500 tracking-tight">
@@ -123,6 +129,7 @@ export default function Sidebar({ userName, isOpen, onClose }: SidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={onClose}
                 aria-current={active ? "page" : undefined}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400
                   ${
